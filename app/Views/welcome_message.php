@@ -50,7 +50,7 @@ link_tag('css/bootstrap.min.css');?>
                     <h2>The small framework with powerful features</h2>
                 </div>
             </header>
-            <section>
+            <section class="cms-editable">
                 <h1>About this page</h1>
                 <p>The page you are looking at is being generated dynamically by CodeIgniter.</p>
                 <p>If you would like to edit this page you will find it located at:</p>
@@ -67,20 +67,7 @@ link_tag('css/bootstrap.min.css');?>
     <div class="row">
         <div class="col">
             <footer>
-                <ul class="nav nav-pills"> <!-- this menu rendered from DB menus / pages entries -->
-                  <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Active</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-                  </li>
-                </ul>
+                <?=$footerMenu->render();?>
                 <div> <!-- these bits are just for debugging / reporting -->
                     <p>Page rendered in {elapsed_time} seconds using {memory_usage} MB of memory.</p>
                     <p>Environment: <?= ENVIRONMENT ?></p>
@@ -89,7 +76,20 @@ link_tag('css/bootstrap.min.css');?>
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+<script>
+/*  const quill = new Quill(".cms-editable", {
+  modules: {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ['bold', 'italic', 'underline'],
+      ['image', 'code-block'],
+    ],
+  },
+    theme: 'snow'
+  });*/
+</script>
 <!-- common to all pages -->
 <?=script_tag('js/jquery-3.7.1.min.js') .
 script_tag('js/bootstrap.bundle.min.js');?>
