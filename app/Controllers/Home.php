@@ -2,10 +2,30 @@
 
 namespace App\Controllers;
 
+function getFolderTree(string $basePath): array {
+    $result = [];
+
+    // Ensure trailing slash
+    $basePath = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+    // Get immediate subdirectories
+    $dirs = glob($basePath . '*', GLOB_ONLYDIR);
+
+    foreach ($dirs as $dir) {
+        // Recursively get subdirectories
+        $result[basename($dir)] = getFolderTree($dir);
+    }
+
+    return $result;
+}
+
+
 class Home extends BaseController {
     public function index(): string {
         $viewData = [];
         helper('filesystem');
+        
+        $viewData['dirs'] = ul(getFolderTree('E:/CI4-sites/cms-site/writable/uploads/'));
 
         /*$items = [
             (object)['url' => '/',        'text' => 'Home'],

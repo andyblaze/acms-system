@@ -20,7 +20,7 @@ link_tag('css/bootstrap.min.css');?>
     <div class="modal-body">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-md-4">tree</div>
+          <div class="col-md-4"><?=$dirs;?></div>
           <div class="col-md-8">files / images</div>
         </div>
       </div>
