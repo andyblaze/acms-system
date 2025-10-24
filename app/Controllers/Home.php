@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+use App\Libraries\FolderMenuBuilder;
 
 function getFolderTree(string $basePath): array {
     $result = [];
@@ -23,9 +24,11 @@ function getFolderTree(string $basePath): array {
 class Home extends BaseController {
     public function index(): string {
         $viewData = [];
-        helper('filesystem');
+        //helper('filesystem');
         
-        $viewData['dirs'] = ul(getFolderTree('E:/CI4-sites/cms-site/writable/uploads/'));
+        $folderTree = getFolderTree('E:/CI4-sites/cms-site/writable/uploads/');
+        $builder = new FolderMenuBuilder('');
+        $viewData['media_menu'] = $builder->render($folderTree);
 
         /*$items = [
             (object)['url' => '/',        'text' => 'Home'],
