@@ -47,12 +47,13 @@ class Home extends BaseController {
         //return view('welcome_message', $viewData);
         return view('media_manager', $viewData);
     }
-    public function files($dir) {
-        die($dir);
-        //$uri = service('uri'); // returns the current SiteURI instance.
-        //$segs = $uri->segment(3) . '/' . $uri->segment(4);
+    public function files($dir=null) {
+        //die($dir);
+        $uri = service('uri'); // returns the current SiteURI instance.
+        $segs = $uri->getSegments();
+        $path = implode('/', array_slice($segs, 2));
         
-        $targetDir = $this->basePath . $dir;
+        $targetDir = $this->basePath . $path;
         //die($targetDir);
 
         // Security check — make sure it stays within uploads
@@ -61,7 +62,7 @@ class Home extends BaseController {
         }
 
         // Get files (non-recursive)
-        $files = [$uri->getTotalSegments()];
+        $files = [];
         foreach (glob($targetDir . '/*') as $item) {
             if (is_file($item)) {
                 $files[] = basename($item);
