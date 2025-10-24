@@ -11,6 +11,10 @@ link_tag('css/bootstrap.min.css');?>
     cursor:pointer;
     font-size:1.4rem;
 }
+.folder.selected > .folder-name {
+  background-color: #cce5ff; /* light blue highlight */
+  border-radius: 4px;
+}
 ul.folder-tree,
 ul.subtree {
   list-style: none;
@@ -51,7 +55,7 @@ ul.subtree {
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-4" id="media-menu"><?=$media_menu;?></div>
-          <div class="col-md-8">files / images</div>
+          <div class="col-md-8" id="file-list">files / images</div>
         </div>
       </div>
     </div>
@@ -77,12 +81,37 @@ ul.subtree {
 <?=script_tag('js/jquery-3.7.1.min.js') .
 script_tag('js/bootstrap.bundle.min.js');?>
 <script>
-$("#media-menu ul li").on('click', function(e) {
+$("#media-menu ul li").on("click", function(e) {
   e.stopPropagation();
-  $(this).toggleClass("inactive active");
-  const li = $(this).closest('.folder');
-  li.toggleClass('open closed');
-  li.children('.subtree').slideToggle();
+  const li = $(this).closest(".folder");
+  li.toggleClass("open closed");
+  li.children(".subtree").slideToggle();
+  // Remove previous selection
+  $('.folder.selected').removeClass('selected');
+  // Highlight this one
+  li.addClass('selected');
+  // Show loading state
+  $('#file-list').html('<p>Loading files...</p>');
+
+  const folderUrl = "http://localhost:8080/home/files" + li.data("url");
+  console.log(folderUrl);
+  // Fetch file list
+  $.ajax({
+    url: folderUrl,
+    method: 'GET',
+    dataType: 'json',
+    success: function(response) { 
+      if (response.files && response.files.length) {
+        const html = '<ul>' + response.files.map(f => `<li>${f}</li>`).join('') + '</ul>';
+        $('#file-list').html(html);
+      } else {
+        $('#file-list').html('<p>No files in this folder.</p>');
+      }
+    },
+    error: function() {
+      $('#file-list').html('<p style="color:red;">Error loading files.</p>');
+    }
+  });
 });
 </script>
 </body>

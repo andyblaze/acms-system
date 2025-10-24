@@ -25,7 +25,7 @@ class FolderMenuBuilder
     {
         $this->baseUrl   = rtrim($baseUrl, '/');
         $this->ulClass   = $options['ulClass']   ?? 'folder-tree';
-        $this->liClass   = $options['liClass']   ?? 'folder closed inactive';
+        $this->liClass   = $options['liClass']   ?? 'folder closed';
         $this->spanClass = $options['spanClass'] ?? 'folder-name';
     }
 
