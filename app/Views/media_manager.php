@@ -81,6 +81,51 @@ ul.subtree {
 <?=script_tag('js/jquery-3.7.1.min.js') .
 script_tag('js/bootstrap.bundle.min.js');?>
 <script>
+class FilesGetter {
+    constructor(bu, jqid) {
+        this.baseUrl = bu;
+        this.jqueryId = jqid;
+    }
+    fetch(path) {
+        $.ajax({
+            url: this.baseUrl + path,
+            method: "GET",
+            dataType: "json",
+            success: (response) => this.success(response),
+            error: () => this.error()
+        });    
+    }
+    success(response) {
+        if ( response.files && response.files.length ) {
+            this.jqueryId.html(response.files);
+        } else {
+            this.jqueryId.html("<p>No files in this folder.</p>");
+        }    
+    }
+    error() {
+        this.jqueryId.html("<p>Error loading files.</p>");
+    }
+}
+const files = new FilesGetter("http://localhost:8080/home/files", $("#file-list"));
+class MenuItems {
+    constructor() {}
+    handleClick(item) {
+        item.on("click", function(e) {
+            e.stopPropagation();
+            const li = $(this).closest(".folder");
+            li.toggleClass("open closed");
+            li.children(".subtree").slideToggle();
+            // Remove previous selection
+            $('.folder.selected').removeClass('selected');
+            // Highlight this one
+            li.addClass('selected');
+            // Show loading state
+            $('#file-list').html('<p>Loading files...</p>');
+        });
+    }
+}
+const menuitems = new MenuItems();
+//menuitems.handleClick($("#media-menu ul li"));
 $("#media-menu ul li").on("click", function(e) {
   e.stopPropagation();
   const li = $(this).closest(".folder");
@@ -93,25 +138,10 @@ $("#media-menu ul li").on("click", function(e) {
   // Show loading state
   $('#file-list').html('<p>Loading files...</p>');
 
-  const folderUrl = "http://localhost:8080/home/files" + li.data("url");
-  console.log(folderUrl);
+  //const folderUrl = "http://localhost:8080/home/files" + li.data("url");
+
   // Fetch file list
-  $.ajax({
-    url: folderUrl,
-    method: 'GET',
-    dataType: 'json',
-    success: function(response) { 
-      if (response.files && response.files.length) {
-        const html = '<ul>' + response.files.map(f => `<li>${f}</li>`).join('') + '</ul>';
-        $('#file-list').html(html);
-      } else {
-        $('#file-list').html('<p>No files in this folder.</p>');
-      }
-    },
-    error: function() {
-      $('#file-list').html('<p style="color:red;">Error loading files.</p>');
-    }
-  });
+  files.fetch(li.data("url"));
 });
 </script>
 </body>

@@ -22,7 +22,7 @@ function getFolderTree(string $basePath): array {
 
 
 class Home extends BaseController {
-    private string $basePath = 'E:/CI4-sites/cms-site/writable/uploads/';
+    private string $basePath = 'E:/CI4-sites/cms-site/public/uploads/';
     public function index(): string {
         $viewData = [];
         //helper('filesystem');
@@ -47,28 +47,29 @@ class Home extends BaseController {
         //return view('welcome_message', $viewData);
         return view('media_manager', $viewData);
     }
+    private function render($path, $file) {
+        return img("uploads/{$path}/{$file}");
+    }
     public function files($dir=null) {
-        //die($dir);
-        $uri = service('uri'); // returns the current SiteURI instance.
+
+        $uri = service('uri');
         $segs = $uri->getSegments();
         $path = implode('/', array_slice($segs, 2));
         
         $targetDir = $this->basePath . $path;
-        //die($targetDir);
 
         // Security check — make sure it stays within uploads
-        if ( ! $targetDir || strpos($targetDir, realpath($this->basePath)) !== 0 ) {
-            //return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid path']);
+        if ( ! $targetDir || strpos($targetDir, realpath($this->basePath)) !== false ) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid path']);
         }
 
-        // Get files (non-recursive)
         $files = [];
         foreach (glob($targetDir . '/*') as $item) {
             if (is_file($item)) {
-                $files[] = basename($item);
+                $files[] = $this->render($path, basename($item));
             }
         }
-
+        $files = count($files) > 0 ? ul($files) : [];
         return $this->response->setJSON(['files' => $files]);        
     }
 }
