@@ -1,4 +1,3 @@
-<?php // this part is probably common to all pages ?>
 <?=doctype();?>
 <html lang="en">
 <head>
@@ -11,27 +10,13 @@ link_tag('css/bootstrap.min.css');?>
 </head>
 <body>
 
-<!-- this menu will be rendered from DB menu / pages entries in controller ( or library ) and passed into view data -->
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainMenuNav" aria-controls="mainMenuNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Features</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Pricing</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li>
-      </ul>
+    <div class="collapse navbar-collapse" id="mainMenuNav">
+      <?=$mainMenu;?>
     </div>
   </div>
 </nav>
@@ -66,7 +51,7 @@ link_tag('css/bootstrap.min.css');?>
     <div class="row">
         <div class="col">
             <footer>
-                <?=$footerMenu->render();?>
+                <?=$footerMenu;?>
                 <div> <!-- these bits are just for debugging / reporting -->
                     <p>Page rendered in {elapsed_time} seconds using {memory_usage} MB of memory.</p>
                     <p>Environment: <?= ENVIRONMENT ?></p>
