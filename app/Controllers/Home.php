@@ -33,6 +33,6 @@ class Home extends BaseController {
         $menu->setActive('/');
 
         $viewData['footerMenu'] = $menu->render();
-        return view('welcome_message', $viewData);
+        return view('pages/site', $viewData);
     }
 }

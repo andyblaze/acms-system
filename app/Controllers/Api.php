@@ -3,23 +3,11 @@
 namespace App\Controllers;
 use App\Libraries\FolderMenuBuilder;
 
-function getFolderTree(string $basePath): array {
-    $result = [];
-    // Ensure trailing slash
-    $basePath = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    $dirs = glob($basePath . '*', GLOB_ONLYDIR);
-    foreach ($dirs as $dir) {
-        $result[basename($dir)] = getFolderTree($dir);
-    }
-    return $result;
-}
-
-
 class Api extends BaseController {
     private string $basePath = 'E:/CI4-sites/cms-site/public/uploads/';
     public function index(): string {
         $viewData = [];
-        //helper('filesystem');
+        helper('foldertree');
         
         $folderTree = getFolderTree($this->basePath);
         $builder = new FolderMenuBuilder('');
