@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 class Home extends BaseController {
     public function index(): string {
+        $db = \Config\Database::connect();
+        $session = service('session');
         $viewData = ['page_title'=>'CMS', 'meta_description'=>'A CMS'];
 
         $items = [
