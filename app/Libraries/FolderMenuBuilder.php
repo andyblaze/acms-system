@@ -10,8 +10,8 @@ namespace App\Libraries;
  *   - data-url for AJAX loading
  *   - classes for open/closed visual states
  */
-class FolderMenuBuilder
-{
+class FolderMenuBuilder {
+    protected string $ulID;
     protected string $baseUrl;
     protected string $ulClass;
     protected string $liClass;
@@ -21,12 +21,12 @@ class FolderMenuBuilder
      * @param string $baseUrl  The base AJAX URL (e.g. "/media/browse")
      * @param array  $options  Optional CSS class overrides
      */
-    public function __construct(string $baseUrl, array $options = [])
-    {
-        $this->baseUrl   = rtrim($baseUrl, '/');
+    public function __construct(string $baseUrl, array $options = []) {
+        $this->ulID      = $options['ulID']      ?? 'media-menu';
         $this->ulClass   = $options['ulClass']   ?? 'folder-tree';
         $this->liClass   = $options['liClass']   ?? 'folder closed';
         $this->spanClass = $options['spanClass'] ?? 'folder-name';
+        $this->baseUrl   = rtrim($baseUrl, '/');
     }
 
     /**
@@ -45,7 +45,8 @@ class FolderMenuBuilder
 
         // Root gets main UL class, subtrees get "subtree hidden"
         $ulClass = $isRoot ? $this->ulClass : 'subtree hidden';
-        $html = "<ul class=\"{$ulClass}\">\n";
+        $ulID = $isRoot ? " id=\"{$this->ulID}\"" : '';
+        $html = "<ul class=\"{$ulClass}\"{$ulID}>\n";
 
         foreach ($tree as $folder => $subtree) {
             // Build current full path (e.g. /images/holidays)

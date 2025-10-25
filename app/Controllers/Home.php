@@ -1,37 +1,11 @@
 <?php
 
 namespace App\Controllers;
-use App\Libraries\FolderMenuBuilder;
-
-function getFolderTree(string $basePath): array {
-    $result = [];
-
-    // Ensure trailing slash
-    $basePath = rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-
-    // Get immediate subdirectories
-    $dirs = glob($basePath . '*', GLOB_ONLYDIR);
-
-    foreach ($dirs as $dir) {
-        // Recursively get subdirectories
-        $result[basename($dir)] = getFolderTree($dir);
-    }
-
-    return $result;
-}
-
 
 class Home extends BaseController {
-    private string $basePath = 'E:/CI4-sites/cms-site/public/uploads/';
     public function index(): string {
-        $viewData = [];
-        //helper('filesystem');
-        
-        $folderTree = getFolderTree($this->basePath);
-        $builder = new FolderMenuBuilder('');
-        $viewData['media_menu'] = $builder->render($folderTree);
-
-        /*$items = [
+        $viewData = ['page_title'=>'CMS', 'meta_description'=>'A CMS'];
+        $items = [
             (object)['url' => '/',        'text' => 'Home'],
             (object)['url' => '/testing',   'text' => 'Testing'],
             (object)['url' => '/contact', 'text' => 'Contact'],
@@ -43,33 +17,7 @@ class Home extends BaseController {
             'a'  => 'nav-link',
         ], '/about');
 
-        $viewData['footerMenu'] = $menu;*/
-        //return view('welcome_message', $viewData);
-        return view('media_manager', $viewData);
-    }
-    private function render($path, $file) {
-        return img("uploads/{$path}/{$file}");
-    }
-    public function files($dir=null) {
-
-        $uri = service('uri');
-        $segs = $uri->getSegments();
-        $path = implode('/', array_slice($segs, 2));
-        
-        $targetDir = $this->basePath . $path;
-
-        // Security check — make sure it stays within uploads
-        if ( ! $targetDir || strpos($targetDir, realpath($this->basePath)) !== false ) {
-            return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid path']);
-        }
-
-        $files = [];
-        foreach (glob($targetDir . '/*') as $item) {
-            if (is_file($item)) {
-                $files[] = $this->render($path, basename($item));
-            }
-        }
-        $files = count($files) > 0 ? ul($files) : [];
-        return $this->response->setJSON(['files' => $files]);        
+        $viewData['footerMenu'] = $menu;
+        return view('welcome_message', $viewData);
     }
 }

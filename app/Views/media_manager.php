@@ -81,10 +81,10 @@ ul.subtree {
 <?=script_tag('js/jquery-3.7.1.min.js') .
 script_tag('js/bootstrap.bundle.min.js');?>
 <script>
-class FilesGetter {
+class ajaxFiles {
     constructor(bu, jqid) {
         this.baseUrl = bu;
-        this.jqueryId = jqid;
+        this.filesPanel = jqid;
     }
     fetch(path) {
         $.ajax({
@@ -97,52 +97,39 @@ class FilesGetter {
     }
     success(response) {
         if ( response.files && response.files.length ) {
-            this.jqueryId.html(response.files);
+            this.filesPanel.html(response.files);
         } else {
-            this.jqueryId.html("<p>No files in this folder.</p>");
+            this.filesPanel.html("<p>No files in this folder.</p>");
         }    
     }
     error() {
-        this.jqueryId.html("<p>Error loading files.</p>");
+        this.filesPanel.html("<p>Error loading files.</p>");
     }
 }
-const files = new FilesGetter("http://localhost:8080/home/files", $("#file-list"));
 class MenuItems {
-    constructor() {}
-    handleClick(item) {
+    constructor(f) {
+        this.files = f;
+        this.filesPanel = f.filesPanel;
+    }
+    onClick(item) {
+        const self = this;
         item.on("click", function(e) {
             e.stopPropagation();
             const li = $(this).closest(".folder");
             li.toggleClass("open closed");
             li.children(".subtree").slideToggle();
-            // Remove previous selection
             $('.folder.selected').removeClass('selected');
-            // Highlight this one
             li.addClass('selected');
-            // Show loading state
-            $('#file-list').html('<p>Loading files...</p>');
+            self.filesPanel.html('<p>Loading files...</p>'); 
+            self.files.fetch(li.data("url"));
         });
     }
 }
-const menuitems = new MenuItems();
-//menuitems.handleClick($("#media-menu ul li"));
-$("#media-menu ul li").on("click", function(e) {
-  e.stopPropagation();
-  const li = $(this).closest(".folder");
-  li.toggleClass("open closed");
-  li.children(".subtree").slideToggle();
-  // Remove previous selection
-  $('.folder.selected').removeClass('selected');
-  // Highlight this one
-  li.addClass('selected');
-  // Show loading state
-  $('#file-list').html('<p>Loading files...</p>');
+const files = new ajaxFiles("http://localhost:8080/home/files", $("#file-list"));
+const menuitems = new MenuItems(files);
+menuitems.onClick($("#media-menu li"));
 
-  //const folderUrl = "http://localhost:8080/home/files" + li.data("url");
 
-  // Fetch file list
-  files.fetch(li.data("url"));
-});
 </script>
 </body>
 </html>
