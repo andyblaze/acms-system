@@ -2,12 +2,12 @@
 
 namespace App\Controllers;
 
+
 class Home extends BaseController {
     public function index(): string {
-        $db = \Config\Database::connect();
-        $session = service('session');
-        $viewData = ['page_title'=>'CMS', 'meta_description'=>'A CMS'];
 
+        $this->viewData += ['meta_description'=>'A CMS'];
+        //dd($this->viewData);
         $items = [
             (object)['url' => '/',         'text' => 'Home'],
             (object)['url' => '/features', 'text' => 'Features'],
@@ -18,7 +18,7 @@ class Home extends BaseController {
             'li' => 'nav-item',
             'a'  => 'nav-link',
         ], '/');
-        $viewData['mainMenu'] = $menu->render();
+        $this->viewData['mainMenu'] = $menu->render();
         
         $menu->setItems([
             (object)['url' => '/accessibility', 'text' => 'Accessibility'],
@@ -34,7 +34,7 @@ class Home extends BaseController {
         
         $menu->setActive('/');
 
-        $viewData['footerMenu'] = $menu->render();
-        return view('pages/site', $viewData);
+        $this->viewData['footerMenu'] = $menu->render();
+        return view('pages/' . $this->viewData['view_file'], $this->viewData);
     }
 }

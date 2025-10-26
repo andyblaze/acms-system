@@ -9,6 +9,10 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
+// custom stuff
+use App\Models\SettingsModel;
+use App\Models\PageModel;
+
 /**
  * Class BaseController
  *
@@ -46,13 +50,20 @@ abstract class BaseController extends Controller
     /**
      * @return void
      */
+     
+    // custom properties
+    protected $viewData = [];
+    
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
 
         // Preload any models, libraries, etc, here.
-
+        $this->pageModel = new PageModel();
+        $this->viewData = $this->pageModel->pageDataByUrl('/');
+        $this->settingsModel = new SettingsModel();
+        $this->viewData += $this->settingsModel->getSettings();
         // E.g.: $this->session = service('session');
     }
 }
