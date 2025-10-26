@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title><?=$page_title->content;?></title>
+<title><?=$page_title->render();?></title>
 <?=meta('description', $meta_description) .
 meta('viewport', 'width=device-width, initial-scale=1.0') .
 link_tag('/favicon.ico', 'shortcut icon', 'image/png') .
