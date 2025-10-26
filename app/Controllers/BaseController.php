@@ -61,9 +61,15 @@ abstract class BaseController extends Controller
 
         // Preload any models, libraries, etc, here.
         $this->pageModel = new PageModel();
-        $this->viewData = $this->pageModel->pageDataByUrl('/');
+        $url = $this->request->getUri()->getPath(); 
+        $url = '/' . ltrim($url, '/'); 
+        $page = $this->pageModel->pageDataByUrl($url);
+        if (is_null($page)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound($url);
+        }
+        $this->viewData = $page;
         $this->settingsModel = new SettingsModel();
         $this->viewData += $this->settingsModel->getSettings();
-        // E.g.: $this->session = service('session');
+        $this->session = \Config\Services::session();
     }
 }

@@ -7,7 +7,7 @@ class Home extends BaseController {
     public function index(): string {
 
         $this->viewData += ['meta_description'=>'A CMS'];
-        //dd($this->viewData);
+
         $items = [
             (object)['url' => '/',         'text' => 'Home'],
             (object)['url' => '/features', 'text' => 'Features'],
