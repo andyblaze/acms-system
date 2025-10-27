@@ -11,7 +11,7 @@ class PageHydrator {
         $namespace = 'App\\Renderers\\';
         foreach ( $rows as $row ) {
             $classname = $namespace . $row->renderer_class;
-            $page[$row->content_key] = new $classname($row);
+            $page[$row->html_identifier] = new $classname($row);
         }
         return $page;
     }
