@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col">
             <footer>
-                <?=$footerMenu;?>
+                <?=$footMenu;?>
                 <div> <!-- these bits are just for debugging / reporting -->
                     <p>Page rendered in {elapsed_time} seconds using {memory_usage} MB of memory.</p>
                     <p>Environment: <?= ENVIRONMENT ?></p>

@@ -12,6 +12,8 @@ use Psr\Log\LoggerInterface;
 // custom stuff
 use App\Models\SettingsModel;
 use App\Models\PageModel;
+use App\Models\MenuModel;
+use \App\Libraries\MenuBuilder;
 
 /**
  * Class BaseController
@@ -45,7 +47,7 @@ abstract class BaseController extends Controller
      * Be sure to declare properties for any property fetch you initialized.
      * The creation of dynamic property is deprecated in PHP 8.2.
      */
-    // protected $session;
+    protected $session;
 
     /**
      * @return void
@@ -54,12 +56,25 @@ abstract class BaseController extends Controller
     // custom properties
     protected $viewData = [];
     
+    // custom methods
+    protected function renderMenus(string $url): void {
+        $menuConfig = config('Menus');
+        $this->menuModel = new MenuModel();
+        $menus = $this->menuModel->getMenus();
+        $builder = new MenuBuilder();
+        foreach ( $menus as $name=>$menu ) {
+            $builder->setItems($menus[$name]->items)->setClasses($menuConfig->menuClasses[$name])->setActive($url);
+            $this->viewData[$name] = $builder->render();
+        }
+    }
+    
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
 
         // Preload any models, libraries, etc, here.
+        // page data
         $this->pageModel = new PageModel();
         $url = $this->request->getUri()->getPath(); 
         $url = '/' . ltrim($url, '/'); 
@@ -68,8 +83,12 @@ abstract class BaseController extends Controller
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound($url);
         }
         $this->viewData = $page;
+        // settings
         $this->settingsModel = new SettingsModel();
         $this->viewData += $this->settingsModel->getSettings();
+        // session
         $this->session = \Config\Services::session();
+        // menus
+        $this->renderMenus($url);
     }
 }

@@ -1,7 +1,7 @@
 <?php 
 namespace App\Libraries;
 
-class ContentHydrator {
+class PageHydrator {
     public function hydrate(array $rows): array {
         $page = [
             'page_id'   => $rows[0]->page_id,
