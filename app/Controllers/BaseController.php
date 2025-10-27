@@ -63,7 +63,7 @@ abstract class BaseController extends Controller
         $menus = $this->menuModel->getMenus();
         $builder = new MenuBuilder();
         foreach ( $menus as $name=>$menu ) {
-            $builder->setItems($menus[$name]->items)->setClasses($menuConfig->menuClasses[$name])->setActive($url);
+            $builder->setItems($menu->items)->setClasses($menuConfig->menuClasses[$name])->setActive($url);
             $this->viewData[$name] = $builder->render();
         }
     }
