@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
-use App\Libraries\MenuHydrator;
+use App\Libraries\NavigationHydrator;
 
-class MenuModel extends Model {
-    protected $table = 'menus';
+class NavigationModel extends Model {
+    protected $table = 'pages';
     protected $returnType = 'object';
 
     /**
@@ -21,7 +21,7 @@ class MenuModel extends Model {
             ->get()
             ->getResult();
 
-        $hydrator = new MenuHydrator();
+        $hydrator = new NavigationHydrator();
         return $hydrator->hydrate($rows);
     }
 }

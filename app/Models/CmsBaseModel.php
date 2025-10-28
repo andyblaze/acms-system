@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class CmsBaseModel extends Model {
+    protected $table            = '';        // override in subclass
+    /*protected $primaryKey       = 'id';
+    protected $useAutoIncrement = true;*/
+
+    protected $returnType       = 'object';
+
+    protected $allowedFields    = [];         // override in subclass
+
+    protected $useTimestamps    = false;
+    /*protected $createdField     = 'created_at';
+    protected $updatedField     = 'updated_at';
+
+    protected $validationRules    = [];
+    protected $validationMessages = [];
+    protected $skipValidation     = true;*/
+
+    /**
+     * Returns the last inserted ID (after insert)
+     */
+    public function getLastInsertedID(): ?int
+    {
+        return $this->db->insertID();
+    }
+}

@@ -2,9 +2,9 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
-use App\Libraries\PageHydrator;
+use App\Libraries\PageContentHydrator;
 
-class PageModel extends Model {
+class PageContentModel extends Model {
     protected $table = 'pages';
     protected $returnType = 'object';
 
@@ -27,7 +27,7 @@ class PageModel extends Model {
         if ( empty($rows) ) {
             return null;
         }
-        $hydrator = new PageHydrator();
+        $hydrator = new PageContentHydrator();
         return $hydrator->hydrate($rows);
     }
 }

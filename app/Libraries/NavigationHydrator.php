@@ -1,7 +1,7 @@
 <?php 
 namespace App\Libraries;
 
-class MenuHydrator {
+class NavigationHydrator {
     public function hydrate(array $rows): array {
         // Hydrate into structured array grouped by menu
         $menus = [];

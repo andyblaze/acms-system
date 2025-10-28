@@ -11,8 +11,8 @@ use Psr\Log\LoggerInterface;
 
 // custom stuff
 use App\Models\SettingsModel;
-use App\Models\PageModel;
-use App\Models\MenuModel;
+use App\Models\PageContentModel;
+use App\Models\NavigationModel;
 use \App\Libraries\MenuBuilder;
 
 /**
@@ -59,7 +59,7 @@ abstract class BaseController extends Controller
     // custom methods
     protected function renderMenus(string $url): void {
         $menuConfig = config('Menus');
-        $this->menuModel = new MenuModel();
+        $this->menuModel = new NavigationModel();
         $menus = $this->menuModel->getMenus();
         $builder = new MenuBuilder();
         foreach ( $menus as $name=>$menu ) {
@@ -75,7 +75,7 @@ abstract class BaseController extends Controller
 
         // Preload any models, libraries, etc, here.
         // page data
-        $this->pageModel = new PageModel();
+        $this->pageModel = new PageContentModel();
         $url = $this->request->getUri()->getPath(); 
         $url = '/' . ltrim($url, '/'); 
         $page = $this->pageModel->pageDataByUrl($url);
