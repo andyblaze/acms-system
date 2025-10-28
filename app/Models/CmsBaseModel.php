@@ -34,7 +34,7 @@ class CmsBaseModel extends Model {
         $map = [];
         $rows = $this->findAll();
         foreach ( $rows as $row ) {
-            map[$row->{$this->primaryKey}] = $row->{$valueField};
+            $map[$row->{$this->primaryKey}] = $row->{$valueField};
         }
         return $map;
     }
