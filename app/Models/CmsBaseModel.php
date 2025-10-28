@@ -20,12 +20,22 @@ class CmsBaseModel extends Model {
     protected $validationRules    = [];
     protected $validationMessages = [];
     protected $skipValidation     = true;*/
+    
+    protected $valueField = '';
 
     /**
      * Returns the last inserted ID (after insert)
      */
-    public function getLastInsertedID(): ?int
-    {
+    public function getLastInsertedID(): ?int {
         return $this->db->insertID();
+    }
+    public function asIdValueMap($vf=null):array {
+        $valueField = $vf === null ? $this->valueField : $vf;
+        $map = [];
+        $rows = $this->findAll();
+        foreach ( $rows as $row ) {
+            map[$row->{$this->primaryKey}] = $row->{$valueField};
+        }
+        return $map;
     }
 }
