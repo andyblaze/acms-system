@@ -9,6 +9,7 @@ use App\Libraries\FormBuilder;
 
 class Home extends BaseController {
     protected function buildSelects() {
+        helper('inflector');
         $fields = [
             'page_id'               => PagesModel::class,
             'html_identifier_id'    => HtmlIdentifiersModel::class,
@@ -22,7 +23,7 @@ class Home extends BaseController {
         // loop through the fields
         foreach ( $fields as $field => $modelClass ) {
             $m = new $modelClass();
-            $f->select($field, $m->asIdValueMap());
+            $f->label(humanize($field))->select($field, $m->asIdValueMap());
         }
         return $f->close();
     }

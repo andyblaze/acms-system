@@ -119,8 +119,8 @@ class FormBuilder {
         $this->htm .= form_radio($data, $value, $checked, $this->attrToString($extra));
         return $this;
     }
-    public function label($label_text='', $id='', $attributes=[]): static {
-        $this->htm .= form_label($label_text, $id, $this->attrToString($attributes));
+    public function label(string $label_text='', string $id='', array $attributes=[]): static {
+        $this->htm .= form_label($label_text, $id, $attributes);
         return $this;
     }
     public function submit($data='', $value='', $extra=''): static {
