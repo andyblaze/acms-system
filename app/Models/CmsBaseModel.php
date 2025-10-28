@@ -22,12 +22,16 @@ class CmsBaseModel extends Model {
     protected $skipValidation     = true;*/
     
     protected $valueField = '';
+    protected $enumField = '';
 
     /**
      * Returns the last inserted ID (after insert)
      */
     public function lastInsertedID(): ?int {
         return $this->db->insertID();
+    }
+    public function tableName() {
+        return $this->table;
     }
     public function asIdValueMap($vf=null):array {
         $valueField = $vf === null ? $this->valueField : $vf;
@@ -37,5 +41,9 @@ class CmsBaseModel extends Model {
             $map[$row->{$this->primaryKey}] = $row->{$valueField};
         }
         return $map;
+    }
+    public function enumValues($ef=null) {
+        $enumField = $ef === null ? $this->enumField : $ef;
+        return [];
     }
 }
