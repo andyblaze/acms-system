@@ -26,7 +26,7 @@ class CmsBaseModel extends Model {
     /**
      * Returns the last inserted ID (after insert)
      */
-    public function getLastInsertedID(): ?int {
+    public function lastInsertedID(): ?int {
         return $this->db->insertID();
     }
     public function asIdValueMap($vf=null):array {
