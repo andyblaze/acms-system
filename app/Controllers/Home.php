@@ -28,6 +28,8 @@ class Home extends BaseController {
         return $f->close();
     }
     public function index(): string {
+        $f = new FormBuilder();
+        $f->testStringToAttrArray();
         //$f->select('status', $m->enumValues());
         echo $this->buildSelects();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);
