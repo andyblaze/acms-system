@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Repositories;
 
 use CodeIgniter\Model;
-use App\Libraries\NavigationHydrator;
+use App\Hydrators\NavigationHydrator;
 
-class NavigationModel extends Model {
+class NavigationRepository extends Model {
     protected $table = 'pages';
     protected $returnType = 'object';
 

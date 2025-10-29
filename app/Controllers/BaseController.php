@@ -11,9 +11,9 @@ use Psr\Log\LoggerInterface;
 
 // custom stuff
 use App\Models\SettingsModel;
-use App\Models\PageContentModel;
-use App\Models\NavigationModel;
-use \App\Libraries\MenuBuilder;
+use App\Repositories\PageContentRepository;
+use App\Repositories\NavigationRepository;
+use App\Libraries\MenuBuilder;
 
 /**
  * Class BaseController
@@ -59,7 +59,7 @@ abstract class BaseController extends Controller
     // custom methods
     protected function renderMenus(string $url): void {
         $menuConfig = config('Menus');
-        $this->menuModel = new NavigationModel();
+        $this->menuModel = new NavigationRepository();
         $menus = $this->menuModel->getMenus();
         $builder = new MenuBuilder();
         foreach ( $menus as $name=>$menu ) {
@@ -75,10 +75,10 @@ abstract class BaseController extends Controller
 
         // Preload any models, libraries, etc, here.
         // page data
-        $this->pageModel = new PageContentModel();
         $url = $this->request->getUri()->getPath(); 
         $url = '/' . ltrim($url, '/'); 
-        $page = $this->pageModel->pageDataByUrl($url);
+        $this->pageRepo = new PageContentRepository();
+        $page = $this->pageRepo->pageDataByUrl($url);
         if (is_null($page)) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound($url);
         }

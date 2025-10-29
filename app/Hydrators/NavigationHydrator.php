@@ -1,5 +1,5 @@
 <?php 
-namespace App\Libraries;
+namespace App\Hydrators;
 
 class NavigationHydrator {
     public function hydrate(array $rows): array {

@@ -1,10 +1,10 @@
 <?php
-namespace App\Models;
+namespace App\Repositories;
 
 use CodeIgniter\Model;
-use App\Libraries\PageContentHydrator;
+use App\Hydrators\PageContentHydrator;
 
-class PageContentModel extends Model {
+class PageContentRepository extends Model { 
     protected $table = 'pages';
     protected $returnType = 'object';
 

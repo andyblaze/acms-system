@@ -1,5 +1,5 @@
 <?php 
-namespace App\Libraries;
+namespace App\Hydrators;
 
 class PageContentHydrator {
     public function hydrate(array $rows): array {
