@@ -5,6 +5,7 @@ class FormBuilder {
     protected $htm = '';
     protected $fieldset_open = false;
     protected $form_opened = false;
+    protected $attributes = null;
 
     protected array $bootstrapConfig = [
         'input'    => ['class' => 'form-control'],
@@ -15,8 +16,9 @@ class FormBuilder {
         'label'    => ['class' => 'form-label'],
     ];
     
-    public function __construct() {
+    public function __construct($a) {
         helper('form');
+        $this->attributes = $a;
     }    
     protected function open_form($action='', $attributes='', $hidden=[], $multi=false): static {
         $this->clear();
