@@ -1,6 +1,8 @@
 <?php
 namespace App\Libraries;
 
+use App\Libraries\AttributesManager;
+
 class FormBuilder {
     protected $htm = '';
     protected $fieldset_open = false;
