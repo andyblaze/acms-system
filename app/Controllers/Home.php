@@ -27,6 +27,8 @@ class Home extends BaseController {
             $m = new $modelClass();
             $f->label(humanize($field))->select($field, $m->asIdValueMap());
         }
+        $f->label('Text content')->input('text_content');
+        $f->label('Html content')->textarea('html_content');
         return $f->close();
     }
     public function index(): string {
