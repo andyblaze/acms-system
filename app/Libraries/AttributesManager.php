@@ -9,7 +9,7 @@ class AttributesManager {
     public function addAttributes($attrs) {
         if ( is_string($attrs) ) {
             if ( $this->test($attrs) === false ) {
-                $errs = implode(' ', $this->errors);
+                $errs = implode(', ', $this->errors);
                 $this->showError("Error - Attribute string is invalid:\n {$errs}\n {$attrs}");
                 $this->errors = [];
             }
@@ -82,7 +82,7 @@ class AttributesManager {
         else 
             $this->attrArray['class'] = $cls;
     }
-    public function attsToStr($arr) { $this->showError($arr);
+    public function attsToStr($arr) {
         $str = '';
         foreach ( $arr as $k=>$v )
             $str .= empty($k) ? '' : "{$k}=\"{$v}\" ";
@@ -92,10 +92,10 @@ class AttributesManager {
         $this->mergeClass($cls);
         return $this;
     }
-    public function asArray() {
+    public function toArray() {
         return $this->attrArray;
     }
-    public function asString() {
+    public function toString() {
         return $this->attsToStr($this->attrArray);
     }
 }

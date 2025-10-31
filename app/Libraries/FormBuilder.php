@@ -16,7 +16,12 @@ class FormBuilder {
         'label'    => ['class' => 'form-label'],
     ];
     
-    protected function attrToString($atts) {
+    protected function attrToString($atts, $type=null) {
+        if ( array_key_exists($type, $this->bootstrapConfig) ) {
+            $cls = $this->bootstrapConfig[$type];
+            $this->attributes->addAttributes($atts)->addClass($cls);
+            return $this->attributes->toString();
+        }
         return $atts;
     }    
     public function __construct($a) {
@@ -82,7 +87,7 @@ class FormBuilder {
         return $this->addField('form_textarea', $data, $value, $extra);
     }
     public function select(string $name='', array $options=[], array $selected=[], $extra=''): static {
-        $this->htm .= form_dropdown($name, $options, $selected, $this->attrToString($extra));
+        $this->htm .= form_dropdown($name, $options, $selected, $this->attrToString($extra, 'select'));
         return $this;
     }
     public function multiselect(string $name='', array $options=[], array $selected=[], $extra=''): static {
