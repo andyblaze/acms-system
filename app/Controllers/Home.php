@@ -6,6 +6,8 @@ use App\Models\HtmlIdentifiersModel;
 use App\Models\PageTemplatesModel;
 use App\Models\RendererClassesModel;
 use App\Libraries\FormBuilder;
+use App\Libraries\AttributesManager;
+
 
 class Home extends BaseController {
     protected function buildSelects() {
@@ -17,7 +19,7 @@ class Home extends BaseController {
             'renderer_id'           =>RendererClassesModel::class
         ];
 
-        $f = new FormBuilder();
+        $f = new FormBuilder(new AttributesManager());
         $f->open();
 
         // loop through the fields
@@ -28,8 +30,6 @@ class Home extends BaseController {
         return $f->close();
     }
     public function index(): string {
-        $f = new FormBuilder();
-        $f->testStringToAttrArray();
         //$f->select('status', $m->enumValues());
         echo $this->buildSelects();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);

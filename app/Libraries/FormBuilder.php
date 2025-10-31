@@ -1,8 +1,6 @@
 <?php
 namespace App\Libraries;
 
-use App\Libraries\AttributesManager;
-
 class FormBuilder {
     protected $htm = '';
     protected $fieldset_open = false;
@@ -18,6 +16,9 @@ class FormBuilder {
         'label'    => ['class' => 'form-label'],
     ];
     
+    protected function attrToString($atts) {
+        return $atts;
+    }    
     public function __construct($a) {
         helper('form');
         $this->attributes = $a;
