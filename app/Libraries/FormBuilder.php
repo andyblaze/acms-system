@@ -16,18 +16,18 @@ class FormBuilder {
         'label'    => ['class' => 'form-label'],
     ];
     
-    protected function attrToString($atts, $type=null) {
+    protected function addAttribute($atts, $type=null) {
         if ( array_key_exists($type, $this->bootstrapConfig) ) {
             $cls = $this->bootstrapConfig[$type]['class'];
             $this->attributes->addAttributes($atts)->addClass($cls);            
         }
+    }    
+    protected function attrToString($atts, $type=null) {
+        $this->addAttribute($atts, $type);
         return $this->attributes->toString();
     }  
     protected function attrToArray($atts, $type) {
-        if ( array_key_exists($type, $this->bootstrapConfig) ) {
-            $cls = $this->bootstrapConfig[$type]['class'];
-            $this->attributes->addAttributes($atts)->addClass($cls);            
-        }
+        $this->addAttribute($atts, $type);
         return $this->attributes->toArray();    
     }
     public function __construct($a) {

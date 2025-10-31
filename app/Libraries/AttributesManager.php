@@ -87,6 +87,7 @@ class AttributesManager {
         foreach ( $this->attrArray as $k=>$v )
             $str .= empty($k) ? '' : "{$k}=\"{$v}\" ";
         $this->attrArray = [];
+        $this->attrStr = '';
         return trim($str);
     }
     public function addClass(string $cls) {
@@ -94,7 +95,9 @@ class AttributesManager {
         return $this;
     }
     public function toArray() {
-        return $this->attrArray;
+        $arr = $this->attrArray;
+        $this->attrArray = [];
+        return $arr;
     }
     public function toString() {
         return $this->attsToStr();
