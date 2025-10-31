@@ -6,7 +6,7 @@ class AttributesManager {
     protected $attrArray = [];
     protected $errors = [];
     
-    public function addAttributes($attrs) {
+    public function addAttributes(string|array $attrs) {
         if ( is_string($attrs) ) {
             if ( $this->test($attrs) === false ) {
                 $errs = implode(', ', $this->errors);
@@ -27,7 +27,7 @@ class AttributesManager {
         $err = is_string($data) ? $data : print_r($data, true);
         echo "<pre>{$err}</pre>";
     }   
-    protected function validChars($str) {
+    protected function validChars(string $str) {
         return preg_match('/[^a-zA-Z0-9_\-\s="]/', $str) === 0;    
     }
     protected function str_all_pos(string $haystack, string $needle): array {
@@ -39,7 +39,7 @@ class AttributesManager {
         }
         return $positions;
     }
-    protected function test($str) {
+    protected function test(string $str) {
         $ok = true;
         $atts = $this->normalise_string($str);
         if (count($this->str_all_pos($atts, '"')) % 2 !== 0) {
@@ -52,15 +52,15 @@ class AttributesManager {
         }
         return $ok;
     }    
-    protected function strip_whitespace($str) {
+    protected function strip_whitespace(string $str) {
         return preg_replace('!\s+!', ' ', str_replace(["\r", "\n", "\t"], '', trim($str)));
     }		
-    protected function normalise_string($str) {
+    protected function normalise_string(string $str) {
         $result = $this->strip_whitespace($str);
         $result = str_replace(['= ', ' =', '=" ', ' "'], ['=', '=', '="', '"'], $result);
         return $result;
     }
-    public function attsToArray($str) {
+    public function attsToArray(string $str) {
         $trm = function($str, $chars='" ') { return trim($str, $chars); };
         $arr = preg_split('/\s+(?=(?:[^"]*"[^"]*")*[^"]*$)/', $str);
         $atts = [];
@@ -76,19 +76,20 @@ class AttributesManager {
         }
         return $atts;
     }
-    protected function mergeClass($cls) {
+    protected function mergeClass(string $cls) {
         if ( array_key_exists('class', $this->attrArray) )
             $this->attrArray['class'] .= " {$cls}";
         else 
             $this->attrArray['class'] = $cls;
     }
-    public function attsToStr($arr) {
+    public function attsToStr() {
         $str = '';
-        foreach ( $arr as $k=>$v )
+        foreach ( $this->attrArray as $k=>$v )
             $str .= empty($k) ? '' : "{$k}=\"{$v}\" ";
+        $this->attrArray = [];
         return trim($str);
     }
-    public function addClass($cls) {
+    public function addClass(string $cls) {
         $this->mergeClass($cls);
         return $this;
     }
@@ -96,6 +97,6 @@ class AttributesManager {
         return $this->attrArray;
     }
     public function toString() {
-        return $this->attsToStr($this->attrArray);
+        return $this->attsToStr();
     }
 }

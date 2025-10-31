@@ -18,12 +18,18 @@ class FormBuilder {
     
     protected function attrToString($atts, $type=null) {
         if ( array_key_exists($type, $this->bootstrapConfig) ) {
-            $cls = $this->bootstrapConfig[$type];
-            $this->attributes->addAttributes($atts)->addClass($cls);
-            return $this->attributes->toString();
+            $cls = $this->bootstrapConfig[$type]['class'];
+            $this->attributes->addAttributes($atts)->addClass($cls);            
         }
-        return $atts;
-    }    
+        return $this->attributes->toString();
+    }  
+    protected function attrToArray($atts, $type) {
+        if ( array_key_exists($type, $this->bootstrapConfig) ) {
+            $cls = $this->bootstrapConfig[$type]['class'];
+            $this->attributes->addAttributes($atts)->addClass($cls);            
+        }
+        return $this->attributes->toArray();    
+    }
     public function __construct($a) {
         helper('form');
         $this->attributes = $a;
@@ -133,7 +139,7 @@ class FormBuilder {
         return $this;
     }
     public function label(string $label_text='', string $id='', array $attributes=[]): static {
-        $this->htm .= form_label($label_text, $id, $attributes);
+        $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label'));
         return $this;
     }
     public function submit($data='', $value='', $extra=''): static {
