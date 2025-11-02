@@ -42,17 +42,6 @@ class Home extends BaseController {
         $frm = new FormBuilder(new AttributesManager());
         $frm->open();
         $this->buildEnums($frm);
-        /*$m = new ContentMapModel();
-        $frm->label('Content type')->select('content_type', $m->enumValues());
-
-        $m = new PagesModel();
-        $frm->label('Status')->select('status', $m->enumValues());
-
-        $m = new TextContentModel();
-        $frm->label('format')->select('format', $m->enumValues());
-
-        $m = new MediaContentModel();
-        $frm->label('Type')->select('type', $m->enumValues());*/
         $this->buildSelects($frm);
         $frm->label('Text content')->input('text_content');
         $frm->label('Html content')->textarea('html_content');
