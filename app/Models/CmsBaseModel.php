@@ -42,8 +42,15 @@ class CmsBaseModel extends Model {
         }
         return $map;
     }
-    public function enumValues($ef=null) {
+    public function enumValues($ef=null): array {
+        $result = [];
         $enumField = $ef === null ? $this->enumField : $ef;
-        return [];
+        $rows = $this->select($this->enumField)
+              ->groupBy($this->enumField)
+              ->findAll();
+        foreach ( $rows as $r ) {
+            $result[$r->{$this->enumField}] = $r->{$this->enumField};
+        }
+        return $result;
     }
 }
