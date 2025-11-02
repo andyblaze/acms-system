@@ -60,7 +60,6 @@ class FormBuilder {
         return $this;    
     }
     private function addField(string $helper, $data='', $value='', $extra='', ?string $type = null): static {
-        $extra = $this->attrToString($extra);
         if ( $type !== null ) {
             $this->htm .= $helper($data, $value, $extra, $type);
         } else {
