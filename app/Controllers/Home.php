@@ -9,8 +9,6 @@ use App\Models\ContentMapModel;
 use App\Models\TextContentModel;
 use App\Models\MediaContentModel;
 use App\Libraries\FormBuilder;
-use App\Libraries\AttributesManager;
-
 
 class Home extends BaseController {
     protected function buildSelects($frm) {        
@@ -39,7 +37,7 @@ class Home extends BaseController {
      }
     public function index(): string {
         helper('inflector');
-        $frm = new FormBuilder(new AttributesManager());
+        $frm = new FormBuilder();
         $frm->open('/api/content/save')->fieldset();
         $this->buildEnums($frm);
         $frm->fieldset();

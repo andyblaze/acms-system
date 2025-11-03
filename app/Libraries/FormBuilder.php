@@ -1,24 +1,26 @@
 <?php
 namespace App\Libraries;
 
+use App\Libraries\AttributesManager;
+use Config\FormTheme;
+
 class FormBuilder {
     protected $htm = '';
     protected $fieldset_open = false;
     protected $form_opened = false;
     protected $attributes = null;
 
-    protected array $bootstrapConfig = [
-        'input'    => ['class' => 'form-control'],
-        'textarea' => ['class' => 'form-control'],
-        'checkbox' => ['class' => 'form-check-input'],
-        'radio'    => ['class' => 'form-check-input'],
-        'select'   => ['class' => 'form-select'],
-        'label'    => ['class' => 'form-label'],
-    ];
+    protected array $theme = [];
     
+    public function __construct(string $theme='bootstrap') {
+        helper('form');
+        $cfg = new FormTheme();
+        $this->theme = $cfg->$theme ?? [];
+        $this->attributes = new AttributesManager();
+    }    
     protected function addAttribute($atts, $type=null) {
-        if ( array_key_exists($type, $this->bootstrapConfig) ) {
-            $cls = $this->bootstrapConfig[$type]['class'];
+        if ( array_key_exists($type, $this->theme) ) {
+            $cls = $this->theme[$type]['class'];
             $this->attributes->addAttributes($atts)->addClass($cls);            
         }
     }    
@@ -30,10 +32,6 @@ class FormBuilder {
         $this->addAttribute($atts, $type);
         return $this->attributes->toArray();    
     }
-    public function __construct($a) {
-        helper('form');
-        $this->attributes = $a;
-    }    
     protected function open_form($action='', $attributes='', $hidden=[], $multi=false): static {
         $this->clear();
         if ( $multi === true ) 

@@ -8,6 +8,16 @@ class Content extends ResourceController {
 
     }
     public function save() {
-        var_dump($this->request->getPost());
+        $security = \Config\Services::security();
+        $data = $this->request->getPost();
+
+        foreach ($data as $key => $value) {
+            if ( is_numeric($value) ) {
+                $data[$key] = ctype_digit($value) ? (int)$value : (float)$value;
+            } elseif ( is_string($value) ) {
+                $data[$key] = esc($value);
+            }
+        }
+        var_dump($data);
     }
 }
