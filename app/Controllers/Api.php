@@ -29,6 +29,9 @@ class Api extends BaseController {
         //return view('welcome_message', $viewData);
         return view('media_manager', $viewData);
     }
+    public function content() {
+
+    }
     private function render($path, $file) {
         $fullPath = "uploads/{$path}/{$file}";
         return img($fullPath, false, "data-url=\"{$fullPath}\"");

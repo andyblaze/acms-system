@@ -26,7 +26,7 @@ class FormBuilder {
         $this->addAttribute($atts, $type);
         return $this->attributes->toString();
     }  
-    protected function attrToArray($atts, $type) {
+    protected function attrToArray($atts, $type=null) {
         $this->addAttribute($atts, $type);
         return $this->attributes->toArray();    
     }
@@ -101,7 +101,7 @@ class FormBuilder {
     }
     public function fieldset($legend_text='', $attributes=[]): static {
         $this->fieldset_close();
-        $this->htm .= form_fieldset($legend_text, $this->attrToString($attributes));
+        $this->htm .= form_fieldset($legend_text, $this->attrToArray($attributes));
         $this->fieldset_open = true;
         return $this;
     }

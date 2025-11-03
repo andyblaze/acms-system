@@ -40,11 +40,14 @@ class Home extends BaseController {
     public function index(): string {
         helper('inflector');
         $frm = new FormBuilder(new AttributesManager());
-        $frm->open();
+        $frm->open('/api/content/save')->fieldset();
         $this->buildEnums($frm);
+        $frm->fieldset();
         $this->buildSelects($frm);
+        $frm->fieldset();
         $frm->label('Text content')->input('text_content');
         $frm->label('Html content')->textarea('html_content');
+        $frm->submit('', 'Send');
         echo $frm->close();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);
     }
