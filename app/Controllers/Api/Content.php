@@ -18,6 +18,6 @@ class Content extends ResourceController {
                 $data[$key] = esc($value);
             }
         }
-        var_dump($data);
+        pre($data);
     }
 }
