@@ -5,6 +5,8 @@ use App\Libraries\AttributesManager;
 use Config\FormTheme;
 
 class FormBuilder {
+    protected $fields = [];
+    protected $pendingLabel = null;
     protected $htm = '';
     protected $fieldset_open = false;
     protected $form_opened = false;
@@ -51,13 +53,14 @@ class FormBuilder {
         if ( $extra === '' )
             $this->htm .= form_hidden($name, $value);
         else {
-            $attrs = $this->attrToString($extra);
+            $attrs = $this->attrToArray($extra);
             $attrs += ['name'=>$name, 'value'=>$value, 'type'=>'hidden'];
             $this->form_input($extra);
         }
         return $this;    
     }
     private function addField(string $helper, $data='', $value='', $extra='', ?string $type = null): static {
+        $this->fields[] = $data;
         if ( $type !== null ) {
             $this->htm .= $helper($data, $value, $extra, $type);
         } else {
@@ -90,10 +93,12 @@ class FormBuilder {
         return $this->addField('form_textarea', $data, $value, $this->attrToString($extra, 'textarea'));
     }
     public function select(string $name='', array $options=[], array $selected=[], $extra=''): static {
+        $this->fields[] = $name;
         $this->htm .= form_dropdown($name, $options, $selected, $this->attrToString($extra, 'select'));
         return $this;
     }
     public function multiselect(string $name='', array $options=[], array $selected=[], $extra=''): static {
+        $this->fields[] = $name;
         $this->htm .= form_multiselect($name, $options, $selected, $this->attrToString($extra, 'select'));
         return $this;
     }
@@ -111,6 +116,7 @@ class FormBuilder {
         return $this;
     }
     public function checkbox($data='', $value='', $checked=false, $extra=''): static {
+        $this->fields[] = $data;
         $this->htm .= form_checkbox($data, $value, $checked, $this->attrToString($extra, 'checkbox'));
         return $this;
     }
@@ -132,10 +138,13 @@ class FormBuilder {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
     public function radio($data='', $value='', $checked=false, $extra=''): static {
+        $this->fields[] = $data;
         $this->htm .= form_radio($data, $value, $checked, $this->attrToString($extra, 'radio'));
         return $this;
     }
     public function label(string $label_text='', string $id='', array $attributes=[]): static {
+        $this->pendingLabel = ['text'=>$label_text, 'for'=>$id];
+        pre($this->pendingLabel);
         $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label'));
         return $this;
     }
@@ -157,6 +166,8 @@ class FormBuilder {
     }
     public function close($extra=''): string {
         $this->fieldset_close();
+        $this->hidden('field_names', implode(',', $this->fields));
+        $this->hidden('nonce', randomStr());
         $this->htm .= form_close($this->attrToString($extra));
         $output = $this->htm;        
         $this->clear();
