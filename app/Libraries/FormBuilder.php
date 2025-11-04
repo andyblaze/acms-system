@@ -124,7 +124,7 @@ class FormBuilder {
     }
     public function fieldset_close($extra=''): static {
         if ( $this->fieldset_open === true ) {
-            $this->htm .= form_fieldset_close($this->attrToString($extra, null, false));
+            $this->htm .= form_fieldset_close($extra);
             $this->fieldset_open = false;
         }
         return $this;
@@ -158,9 +158,10 @@ class FormBuilder {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
     public function radio($data='', $value='', $checked=false, $extra=''): static {
-        $this->fields[] = $data;
-        $this->htm .= form_radio($data, $value, $checked, $this->attrToString($extra, 'radio'));
-        return $this;
+        return $this->tickable('form_radio', $data, $value, $checked, $extra, 'radio');
+        //$this->fields[] = $data;
+        //$this->htm .= form_radio($data, $value, $checked, $this->attrToString($extra, 'radio'));
+        //return $this;
     }
     public function label(string $label_text='', string $id='', array $attributes=[]): static {
         $this->setPendingLabel($label_text, $id, $attributes);
@@ -188,7 +189,7 @@ class FormBuilder {
         $this->fieldset_close();
         $this->hidden('field_names', implode(',', $this->fields));
         $this->hidden('nonce', randomStr());
-        $this->htm .= form_close($this->attrToString($extra, null, false));
+        $this->htm .= form_close($extra);
         $output = $this->htm;        
         $this->clear();
         return $output;
