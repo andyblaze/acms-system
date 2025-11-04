@@ -20,26 +20,38 @@ class FormBuilder {
         $this->theme = $cfg->$theme ?? [];
         $this->attributes = new AttributesManager();
     }    
-    protected function addAttribute($atts, $type=null) {
+    protected function addAttribute($atts, $type=null, $addId=true) {
         if ( array_key_exists($type, $this->theme) ) {
             $cls = $this->theme[$type]['class'];
-            $this->attributes->addAttributes($atts)->addClass($cls);            
+            $this->attributes->addAttributes($atts, $addId)->addClass($cls);            
         }
     }    
-    protected function attrToString($atts, $type=null) {
-        $this->addAttribute($atts, $type);
+    protected function setPendingLabel($text, $id, $atts) {
+        $this->pendingLabel = ['text'=>$text, 'for'=>$id, 'attributes'=>$atts];
+    }
+    protected function setIds() {
+        if ( $this->pendingLabel === null ) return;
+        $id = $this->attributes->get('id'); 
+        if ( $id !== null ) {
+            if ( $this->pendingLabel !== null ) {
+                $this->pendingLabel['for'] = $id;
+            }
+        }
+    }
+    protected function attrToString($atts, $type=null, $addId=true) {
+        $this->addAttribute($atts, $type, $addId);
         return $this->attributes->toString();
     }  
-    protected function attrToArray($atts, $type=null) {
-        $this->addAttribute($atts, $type);
+    protected function attrToArray($atts, $type=null, $addId=true) {
+        $this->addAttribute($atts, $type, $addId);
         return $this->attributes->toArray();    
     }
     protected function open_form($action='', $attributes='', $hidden=[], $multi=false): static {
         $this->clear();
         if ( $multi === true ) 
-            $this->htm .= form_open_multipart($action, $this->attrToString($attributes), $hidden);
+            $this->htm .= form_open_multipart($action, $this->attrToString($attributes, null, false), $hidden);
         else 
-            $this->htm .= form_open($action, $this->attrToString($attributes), $hidden);
+            $this->htm .= form_open($action, $this->attrToString($attributes, null, false), $hidden);
         $this->form_opened = true;
         return $this;
     }
@@ -104,13 +116,13 @@ class FormBuilder {
     }
     public function fieldset($legend_text='', $attributes=[]): static {
         $this->fieldset_close();
-        $this->htm .= form_fieldset($legend_text, $this->attrToArray($attributes));
+        $this->htm .= form_fieldset($legend_text, $this->attrToArray($attributes, null, false));
         $this->fieldset_open = true;
         return $this;
     }
     public function fieldset_close($extra=''): static {
         if ( $this->fieldset_open === true ) {
-            $this->htm .= form_fieldset_close($this->attrToString($extra));
+            $this->htm .= form_fieldset_close($this->attrToString($extra, null, false));
             $this->fieldset_open = false;
         }
         return $this;
@@ -143,21 +155,20 @@ class FormBuilder {
         return $this;
     }
     public function label(string $label_text='', string $id='', array $attributes=[]): static {
-        $this->pendingLabel = ['text'=>$label_text, 'for'=>$id];
-        pre($this->pendingLabel);
-        $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label'));
+        $this->setPendingLabel($label_text, $id, $attributes);
+        $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label', false));
         return $this;
     }
     public function submit($data='', $value='', $extra=''): static {
-        $this->htm .= form_submit($data, $value, $this->attrToString($extra));
+        $this->htm .= form_submit($data, $value, $this->attrToString($extra, null, false));
         return $this;
     }
     public function reset($data='', $value='', $extra=''): static {
-        $this->htm .= form_reset($data, $value, $this->attrToString($extra));
+        $this->htm .= form_reset($data, $value, $this->attrToString($extra, null, false));
         return $this;
     }
     public function button($data='', $content='', $extra=''): static {
-        $this->htm .= form_button($data, $content, $this->attrToString($extra));
+        $this->htm .= form_button($data, $content, $this->attrToString($extra, null, false));
         return $this;
     }
     public function html(string $htm): static {
@@ -168,7 +179,7 @@ class FormBuilder {
         $this->fieldset_close();
         $this->hidden('field_names', implode(',', $this->fields));
         $this->hidden('nonce', randomStr());
-        $this->htm .= form_close($this->attrToString($extra));
+        $this->htm .= form_close($this->attrToString($extra, null, false));
         $output = $this->htm;        
         $this->clear();
         return $output;

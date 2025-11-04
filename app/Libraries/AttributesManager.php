@@ -6,7 +6,7 @@ class AttributesManager {
     protected $attrArray = [];
     protected $errors = [];
     
-    public function addAttributes(string|array $attrs) {
+    public function addAttributes(string|array $attrs, bool $addId=true) {
         if ( is_string($attrs) ) {
             if ( $this->test($attrs) === false ) {
                 $errs = implode(', ', $this->errors);
@@ -21,6 +21,8 @@ class AttributesManager {
         if ( is_array($attrs) ) {
             $this->attrArray = $attrs;
         }
+        if ( $addId && ! $this->has('id') )
+            $this->attrArray['id'] = 'id_' . randomStr();
         return $this;
     }
     protected function showError($data) {
@@ -93,6 +95,12 @@ class AttributesManager {
     public function addClass(string $cls) {
         $this->mergeClass($cls);
         return $this;
+    }
+    public function has($attr) {
+        return array_key_exists($attr, $this->attrArray);
+    }
+    public function get($attr) {
+        return $this->has($attr) ? $this->attrArray[$attr] : null;
     }
     public function toArray() {
         $arr = $this->attrArray;
