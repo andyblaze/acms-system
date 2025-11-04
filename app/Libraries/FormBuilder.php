@@ -33,9 +33,7 @@ class FormBuilder {
         if ( $this->pendingLabel === null ) return;
         $id = $this->attributes->get('id'); 
         if ( $id !== null ) {
-            if ( $this->pendingLabel !== null ) {
-                $this->pendingLabel['for'] = $id;
-            }
+            $this->pendingLabel['for'] = $id;
         }
     }
     protected function attrToString($atts, $type=null, $addId=true) {
@@ -104,15 +102,19 @@ class FormBuilder {
     public function textarea($data='', $value='', $extra=''): static {
         return $this->addField('form_textarea', $data, $value, $this->attrToString($extra, 'textarea'));
     }
-    public function select(string $name='', array $options=[], array $selected=[], $extra=''): static {
+    protected function addSelect(string $name='', array $options=[], array $selected=[], $extra='', $multi): static {
         $this->fields[] = $name;
-        $this->htm .= form_dropdown($name, $options, $selected, $this->attrToString($extra, 'select'));
+        if ( true === $multi )
+            $this->htm .= form_multiselect($name, $options, $selected, $this->attrToString($extra, 'select'));
+        else
+            $this->htm .= form_dropdown($name, $options, $selected, $this->attrToString($extra, 'select'));
         return $this;
     }
+    public function select(string $name='', array $options=[], array $selected=[], $extra=''): static {
+        return $this->addSelect($name, $options, $selected, $extra, false);
+    }
     public function multiselect(string $name='', array $options=[], array $selected=[], $extra=''): static {
-        $this->fields[] = $name;
-        $this->htm .= form_multiselect($name, $options, $selected, $this->attrToString($extra, 'select'));
-        return $this;
+        return $this->addSelect($name, $options, $selected, $extra, true);
     }
     public function fieldset($legend_text='', $attributes=[]): static {
         $this->fieldset_close();
@@ -125,6 +127,11 @@ class FormBuilder {
             $this->htm .= form_fieldset_close($this->attrToString($extra, null, false));
             $this->fieldset_open = false;
         }
+        return $this;
+    }
+    protected function tickable() {
+        $this->fields[] = $data;
+        $this->htm .= form_checkbox($data, $value, $checked, $this->attrToString($extra, 'checkbox'));
         return $this;
     }
     public function checkbox($data='', $value='', $checked=false, $extra=''): static {
@@ -159,17 +166,18 @@ class FormBuilder {
         $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label', false));
         return $this;
     }
-    public function submit($data='', $value='', $extra=''): static {
-        $this->htm .= form_submit($data, $value, $this->attrToString($extra, null, false));
+    protected function btn($helper, $data, $value, $extra) {
+        $this->htm .= $helper($data, $value, $this->attrToString($extra, null, false));
         return $this;
+    }
+    public function submit($data='', $value='', $extra=''): static {
+        return $this->btn('form_submit', $data, $value, $extra);
     }
     public function reset($data='', $value='', $extra=''): static {
-        $this->htm .= form_reset($data, $value, $this->attrToString($extra, null, false));
-        return $this;
+        return $this->btn('form_reset', $data, $value, $extra);
     }
     public function button($data='', $content='', $extra=''): static {
-        $this->htm .= form_button($data, $content, $this->attrToString($extra, null, false));
-        return $this;
+        return $this->btn('form_button', $data, $value, $extra);
     }
     public function html(string $htm): static {
         $this->htm .= $htm;
