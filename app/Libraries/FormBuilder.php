@@ -129,15 +129,16 @@ class FormBuilder {
         }
         return $this;
     }
-    protected function tickable() {
+    protected function tickable($helper, $data, $value, $checked, $extra, $type): static {
         $this->fields[] = $data;
-        $this->htm .= form_checkbox($data, $value, $checked, $this->attrToString($extra, 'checkbox'));
+        $this->htm .= $helper($data, $value, $checked, $this->attrToString($extra, $type));
         return $this;
     }
     public function checkbox($data='', $value='', $checked=false, $extra=''): static {
-        $this->fields[] = $data;
-        $this->htm .= form_checkbox($data, $value, $checked, $this->attrToString($extra, 'checkbox'));
-        return $this;
+        return $this->tickable('form_checkbox', $data, $value, $checked, $extra, 'checkbox');
+        //$this->fields[] = $data;
+        //$this->htm .= form_checkbox($data, $value, $checked, $this->attrToString($extra, 'checkbox'));
+        //return $this;
     }
     private function inputGroup(string $type, string $name, array $options, array $checked=[], string $extra=''): static {
         if ( $extra !== '' )
