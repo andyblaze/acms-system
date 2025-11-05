@@ -31,18 +31,20 @@ class Control {
         $this->addThemeClass($themeKey);
     }
     public function render() {
-        if ( in_array($this->tag, $this->nonVoids) ) { pre(99);
+        if ( in_array($this->tag, $this->nonVoids) ) { 
             $value = $this->attributes->get('value');
             $this->attributes->remove('value');
             $this->attributes->remove('type');
-            $openTag = "<{$this->tag} " . $this->attributes->toString() . '>';
-            $closeTag = "{$value}</{$this->tag}>";
+            $tag =  "<{$this->tag} " . 
+                    $this->attributes->toString() . 
+                    ">{$value}</{$this->tag}>";
         }
         else {
-            $openTag = "<{$this->tag} " . $this->attributes->toString();
-            $closeTag = ' />';
+            $tag =  "<{$this->tag} " . 
+                    $this->attributes->toString() .
+                    ' />';
         }
-        return $openTag . $closeTag;
+        return $tag;
     }
 }
 
@@ -103,16 +105,6 @@ class FormBuilder {
     public function open_multipart($action='', $attributes='', $hidden=[]): static {
         return $this->open_form($action, $attributes, $hidden, true);
     }
-    public function hidden($name, $value='', $extra=''): static {
-        if ( $extra === '' )
-            $this->htm .= form_hidden($name, $value);
-        else {
-            $attrs = $this->attrToArray($extra);
-            $attrs += ['name'=>$name, 'value'=>$value, 'type'=>'hidden'];
-            $this->form_input($extra);
-        }
-        return $this;    
-    }
     private function addField(string $helper, $name, $value='', $extra='', ?string $type = null): static {
         $this->fields[] = $name;
         if ( $type !== null ) {
@@ -135,6 +127,9 @@ class FormBuilder {
         $this->control->init($cfg, $tag, $themeKey, $extra); 
         $this->htm .= $this->control->render();
         return $this;
+    }
+    public function hidden(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'hidden');
     }
     public function input(string $name, $value='', string $extra=''): static {
         return $this->addInput($name, $value, $extra, 'text');
@@ -162,6 +157,21 @@ class FormBuilder {
     }
     public function textarea($name, $value='', $extra=''): static {
         return $this->addInput($name, $value, $extra, 'textarea', 'textarea', true);
+    }
+    public function checkbox(string $name, $value='', bool $checked=false, string $extra=''): static {
+        return $this->tickable($name, $value, $checked, $extra, 'checkbox');
+    }
+    public function radio(string $name, $value='', bool $checked=false, string $extra=''): static {
+        return $this->tickable($name, $value, $checked, $extra, 'radio');
+    }
+    public function submit(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'submit', 'submit');
+    }
+    public function reset(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'reset', 'reset');
+    }
+    public function button(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'button', 'button', true);
     }
     protected function addSelect(string $name='', array $options=[], array $selected=[], $extra='', $multi): static {
         $this->fields[] = $name;
@@ -195,9 +205,6 @@ class FormBuilder {
         $cfg['checked'] = $checked;
         return $this->addInput($name, $value, $extra, $type, $type);
     }
-    public function checkbox(string $name, $value='', bool $checked=false, string $extra=''): static {
-        return $this->tickable($name, $value, $checked, $extra, 'checkbox');
-    }
     private function inputGroup(string $type, string $name, array $options, array $checked=[], string $extra=''): static {
         if ( $extra !== '' )
             $extra = ' ' . $extra;
@@ -215,21 +222,9 @@ class FormBuilder {
     public function radioGroup($name, $options, $checked=[], $extra=''): static {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
-    public function radio(string $name, $value='', bool $checked=false, string $extra=''): static {
-        return $this->tickable($name, $value, $checked, $extra, 'radio');
-    }
     public function label(string $label_text, string $id='', string $extra=''): static {
         $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label', false));
         return $this;
-    }
-    public function submit(string $name, $value='', string $extra=''): static {
-        return $this->addInput($name, $value, $extra, 'submit', 'submit');
-    }
-    public function reset(string $name, $value='', string $extra=''): static {
-        return $this->addInput($name, $value, $extra, 'reset', 'reset');
-    }
-    public function button(string $name, $value='', string $extra=''): static {
-        return $this->addInput($name, $value, $extra, 'button', 'button', true);
     }
     public function html(string $htm): static {
         $this->htm .= $htm;
