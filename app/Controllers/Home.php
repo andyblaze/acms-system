@@ -47,14 +47,16 @@ class Home extends BaseController {
         $frm->label('Password')->password('password');
         $frm->label('Email')->email('email');
         $frm->label('File')->upload('file');
-        $frm->label('Color')->color('color');
-        $frm->label('Number')->number('number', 2, 'min="0" max="6"');
-        $frm->label('Date')->date('date');
-        $frm->label('Range')->range('range', 3, 'min="0" max="6"');
+        $frm->wrap('div')->label('Color')->color('color');
+        $frm->wrap('div')->label('Number')->number('number', 2, 'min="0" max="6"');
+        $frm->wrap('div')->label('Date')->date('date');
+        $frm->wrap('div')->label('Range')->range('range', 3, 'min="0" max="6"')->unwrap();
         $frm->label('Html content')->textarea('html_content', 'poop');
         $frm->checkbox('abc', 12)->label('Abc');
         $frm->radio('xyz', 12)->label('Xyz');
-        $frm->submit('', 'Send')->reset('', 'Reset')->button('', 'Btn');
+        $frm->wrap('div')->submit('', 'Send');
+        $frm->wrap('div')->reset('', 'Reset');
+        $frm->wrap('div')->button('', 'Btn');
         echo $frm->close();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);
     }

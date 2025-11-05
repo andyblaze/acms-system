@@ -54,6 +54,7 @@ class FormBuilder {
     protected $htm = '';
     protected $fieldset_open = false;
     protected $form_opened = false;
+    protected $wrapTag = '';
     protected $attributes = null;
     protected $control = null;
 
@@ -223,7 +224,21 @@ class FormBuilder {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
     public function label(string $label_text, string $id='', string $extra=''): static {
-        $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label', false));
+        $this->htm .= form_label($label_text, $id, $this->attrToArray($extra, 'label', false));
+        return $this;
+    }
+    public function unwrap() {
+        if ( $this->wrapTag !== '' ) {
+            $this->htm .= "</{$this->wrapTag}>\n";
+        }
+        $this->wrapTag = '';
+        return $this;
+    }
+    public function wrap(string $tag, string $extra='') {
+        $this->unwrap();
+        $attrs = $this->attrToString($extra, null, false);
+        $this->htm .= "<{$tag}{$attrs}>";
+        $this->wrapTag = $tag;
         return $this;
     }
     public function html(string $htm): static {
