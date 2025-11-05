@@ -6,7 +6,7 @@ class AttributesManager {
     protected $attrArray = [];
     protected $errors = [];
     
-    public function addAttributes(string|array $attrs, bool $addId=true) {
+    public function initAttributes(string|array $attrs, bool $addId=true) {
         if ( is_string($attrs) ) {
             if ( $this->test($attrs) === false ) {
                 $errs = implode(', ', $this->errors);
@@ -77,6 +77,10 @@ class AttributesManager {
             }
         }
         return $atts;
+    }
+    public function merge($attrs) {
+        foreach ( $attrs as $k=>$v )
+            $this->attrArray[$k] = $v;
     }
     protected function mergeClass(string $cls) {
         if ( array_key_exists('class', $this->attrArray) )

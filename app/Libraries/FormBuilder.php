@@ -4,6 +4,45 @@ namespace App\Libraries;
 use App\Libraries\AttributesManager;
 use Config\FormTheme;
 
+class Control {
+    private array $cfg = [];
+    private array $theme = [];
+    private ?object $attributes = null;
+    private string $tag = '';
+    private array $nonVoids = [
+        'textarea'
+    ];
+    public function __construct() {
+        $cfg = new FormTheme();
+        $this->theme = $cfg->bootstrap ?? [];
+        $this->attributes = new AttributesManager();    
+    }
+    protected function addThemeClass(string $key) {
+        if ( array_key_exists($key, $this->theme) ) {
+            $cls = $this->theme[$key]['class'];
+            $this->attributes->addClass($cls);            
+        }
+    }    
+    public function init(array $cfg, string $tag, string $themeKey, string $attrs) {
+        $this->cfg = $cfg;
+        $this->tag = $tag;
+        $this->attributes->initAttributes($attrs);
+        $this->attributes->merge($cfg);
+        $this->addThemeClass($themeKey);
+    }
+    public function render() {
+        if ( in_array($this->tag, $this->nonVoids) ) {
+            $openTag = "<{$this->tag} " . $this->attributes->toString() . '>';
+            $closeTag = "</{$this->tag}>";
+        }
+        else {
+            $openTag = "<{$this->tag} " . $this->attributes->toString();
+            $closeTag = ' />';
+        }
+        return "<{$this->tag} " . $this->attributes->toString() . ' />';
+    }
+}
+
 class FormBuilder {
     protected $fields = [];
     protected $pendingLabel = null;
@@ -11,6 +50,7 @@ class FormBuilder {
     protected $fieldset_open = false;
     protected $form_opened = false;
     protected $attributes = null;
+    protected $control = null;
 
     protected array $theme = [];
     
@@ -19,11 +59,12 @@ class FormBuilder {
         $cfg = new FormTheme();
         $this->theme = $cfg->$theme ?? [];
         $this->attributes = new AttributesManager();
+        $this->control = new Control();
     }    
     protected function addAttribute($atts, $type=null, $addId=true) {
         if ( array_key_exists($type, $this->theme) ) {
             $cls = $this->theme[$type]['class'];
-            $this->attributes->addAttributes($atts, $addId)->addClass($cls);            
+            $this->attributes->initAttributes($atts, $addId)->addClass($cls);            
         }
     }    
     protected function setPendingLabel($text, $id, $atts) {
@@ -69,38 +110,55 @@ class FormBuilder {
         }
         return $this;    
     }
-    private function addField(string $helper, $data='', $value='', $extra='', ?string $type = null): static {
-        $this->fields[] = $data;
+    private function addField(string $helper, $name, $value='', $extra='', ?string $type = null): static {
+        $this->fields[] = $name;
         if ( $type !== null ) {
-            $this->htm .= $helper($data, $value, $extra, $type);
+            $this->htm .= $helper($name, $value, $extra, $type);
         } else {
-            $this->htm .= $helper($data, $value, $extra);
+            $this->htm .= $helper($name, $value, $extra);
         }
         return $this;
     }
-    public function input($data='', $value='', $extra='', $type='text'): static {
-        return $this->addField('form_input', $data, $value, $this->attrToString($extra, 'input'), $type);
+    protected function stdConfig($name, $value, $type) {
+        return [
+            'name'=>$name,
+            'value'=>$value,
+            'type'=>$type
+        ];
     }
-    public function password($data='', $value='', $extra=''): static {
-        return $this->addField('form_password', $data, $value, $this->attrToString($extra, 'input'));
+    protected function addInput($name, $value, $extra, string $type, string $themeKey='input') {
+        $cfg = $this->stdConfig($name, $value, $type);
+        $this->control->init($cfg, 'input', $themeKey, $extra); 
+        $this->htm .= $this->control->render();
+        return $this;
     }
-    public function upload($data='', $value='', $extra=''): static {
-        return $this->addField('form_upload', $data, $value, $this->attrToString($extra, 'input'));
+    public function input(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'text');
     }
-    public function color($data='', $value='', $extra=''): static {
-        return $this->input($data, $value, $extra, 'color');
+    public function password(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'password');
     }
-    public function number($data='', $value='', $extra=''): static {
-        return $this->input($data, $value, $extra, 'number');
+    public function email(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'email');
     }
-    public function date($data='', $value='', $extra=''): static {
-        return $this->input($data, $value, $extra, 'date');
+    public function upload(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'file');
     }
-    public function range($data='', $value='', $extra=''): static {
-        return $this->input($data, $value, $extra, 'range');
+    public function color(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'color', 'color');
     }
-    public function textarea($data='', $value='', $extra=''): static {
-        return $this->addField('form_textarea', $data, $value, $this->attrToString($extra, 'textarea'));
+    public function number(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'number', 'number');
+    }
+    public function date(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'date', 'date');
+    }
+    public function range(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'range', 'range');
+    }
+    public function textarea($name, $value='', $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'textarea', 'textarea');
+        return $this->addField('form_textarea', $name, $value, $this->attrToString($extra, 'textarea'));
     }
     protected function addSelect(string $name='', array $options=[], array $selected=[], $extra='', $multi): static {
         $this->fields[] = $name;
@@ -168,18 +226,18 @@ class FormBuilder {
         $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label', false));
         return $this;
     }
-    protected function btn($helper, $data, $value, $extra) {
-        $this->htm .= $helper($data, $value, $this->attrToString($extra, null, false));
+    protected function btn($helper, $name, $value, $extra) {
+        $this->htm .= $helper($name, $value, $this->attrToString($extra, null, false));
         return $this;
     }
-    public function submit($data='', $value='', $extra=''): static {
-        return $this->btn('form_submit', $data, $value, $extra);
+    public function submit($name, $value='', $extra=''): static {
+        return $this->btn('form_submit', $name, $value, $extra);
     }
-    public function reset($data='', $value='', $extra=''): static {
-        return $this->btn('form_reset', $data, $value, $extra);
+    public function reset($name, $value='', $extra=''): static {
+        return $this->btn('form_reset', $name, $value, $extra);
     }
-    public function button($data='', $content='', $extra=''): static {
-        return $this->btn('form_button', $data, $value, $extra);
+    public function button($name='', $content='', $extra=''): static {
+        return $this->btn('form_button', $name, $value, $extra);
     }
     public function html(string $htm): static {
         $this->htm .= $htm;
