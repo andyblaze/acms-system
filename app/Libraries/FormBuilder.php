@@ -218,8 +218,7 @@ class FormBuilder {
     public function radio(string $name, $value='', bool $checked=false, string $extra=''): static {
         return $this->tickable($name, $value, $checked, $extra, 'radio');
     }
-    public function label(string $label_text='', string $id='', array $attributes=[]): static {
-        $this->setPendingLabel($label_text, $id, $attributes);
+    public function label(string $label_text, string $id='', string $extra=''): static {
         $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label', false));
         return $this;
     }
