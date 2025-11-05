@@ -51,7 +51,7 @@ class Home extends BaseController {
         $frm->label('Number')->number('number', 2, 'min="0" max="6"');
         $frm->label('Date')->date('date');
         $frm->label('Range')->range('range', 3, 'min="0" max="6"');
-        //$frm->label('Html content')->textarea('html_content');
+        $frm->label('Html content')->textarea('html_content');
         $frm->submit('', 'Send');
         echo $frm->close();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);

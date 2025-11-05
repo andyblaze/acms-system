@@ -106,6 +106,12 @@ class AttributesManager {
     public function get($attr) {
         return $this->has($attr) ? $this->attrArray[$attr] : null;
     }
+    public function set($k, $v) {
+        $this->attrArray[$k] = $v;
+    }
+    public function remove($k) {
+        unset($this->attrArray[$k]);
+    }
     public function toArray() {
         $arr = $this->attrArray;
         $this->attrArray = [];

@@ -32,14 +32,17 @@ class Control {
     }
     public function render() {
         if ( in_array($this->tag, $this->nonVoids) ) {
+            $value = $this->attributes->get('value');
+            $this->attributes->remove('value');
+            $this->attributes->remove('type');
             $openTag = "<{$this->tag} " . $this->attributes->toString() . '>';
-            $closeTag = "</{$this->tag}>";
+            $closeTag = "{$value}</{$this->tag}>";
         }
         else {
             $openTag = "<{$this->tag} " . $this->attributes->toString();
             $closeTag = ' />';
         }
-        return "<{$this->tag} " . $this->attributes->toString() . ' />';
+        return $openTag . $closeTag;
     }
 }
 
@@ -158,7 +161,7 @@ class FormBuilder {
     }
     public function textarea($name, $value='', $extra=''): static {
         return $this->addInput($name, $value, $extra, 'textarea', 'textarea');
-        return $this->addField('form_textarea', $name, $value, $this->attrToString($extra, 'textarea'));
+        //return $this->addField('form_textarea', $name, $value, $this->attrToString($extra, 'textarea'));
     }
     protected function addSelect(string $name='', array $options=[], array $selected=[], $extra='', $multi): static {
         $this->fields[] = $name;
