@@ -10,7 +10,7 @@ class Control {
     private ?object $attributes = null;
     private string $tag = '';
     private array $nonVoids = [
-        'textarea'
+        'textarea', 'button'
     ];
     public function __construct() {
         $cfg = new FormTheme();
@@ -31,7 +31,7 @@ class Control {
         $this->addThemeClass($themeKey);
     }
     public function render() {
-        if ( in_array($this->tag, $this->nonVoids) ) {
+        if ( in_array($this->tag, $this->nonVoids) ) { pre(99);
             $value = $this->attributes->get('value');
             $this->attributes->remove('value');
             $this->attributes->remove('type');
@@ -129,9 +129,10 @@ class FormBuilder {
             'type'=>$type
         ];
     }
-    protected function addInput($name, $value, $extra, string $type, string $themeKey='input') {
+    protected function addInput($name, $value, $extra, string $type, string $themeKey='input', bool $typeToTag=false) {
         $cfg = $this->stdConfig($name, $value, $type);
-        $this->control->init($cfg, 'input', $themeKey, $extra); 
+        $tag = (true === $typeToTag ? $type : 'input');
+        $this->control->init($cfg, $tag, $themeKey, $extra); 
         $this->htm .= $this->control->render();
         return $this;
     }
@@ -160,8 +161,7 @@ class FormBuilder {
         return $this->addInput($name, $value, $extra, 'range', 'range');
     }
     public function textarea($name, $value='', $extra=''): static {
-        return $this->addInput($name, $value, $extra, 'textarea', 'textarea');
-        //return $this->addField('form_textarea', $name, $value, $this->attrToString($extra, 'textarea'));
+        return $this->addInput($name, $value, $extra, 'textarea', 'textarea', true);
     }
     protected function addSelect(string $name='', array $options=[], array $selected=[], $extra='', $multi): static {
         $this->fields[] = $name;
@@ -171,7 +171,7 @@ class FormBuilder {
             $this->htm .= form_dropdown($name, $options, $selected, $this->attrToString($extra, 'select'));
         return $this;
     }
-    public function select(string $name='', array $options=[], array $selected=[], $extra=''): static {
+    public function select(string $name, array $options=[], array $selected=[], string $extra=''): static {
         return $this->addSelect($name, $options, $selected, $extra, false);
     }
     public function multiselect(string $name='', array $options=[], array $selected=[], $extra=''): static {
@@ -190,16 +190,13 @@ class FormBuilder {
         }
         return $this;
     }
-    protected function tickable($helper, $data, $value, $checked, $extra, $type): static {
-        $this->fields[] = $data;
-        $this->htm .= $helper($data, $value, $checked, $this->attrToString($extra, $type));
-        return $this;
+    protected function tickable($name, $value, $checked, $extra, $type): static {
+        $cfg = $this->stdConfig($name, $value, $type);
+        $cfg['checked'] = $checked;
+        return $this->addInput($name, $value, $extra, $type, $type);
     }
-    public function checkbox($data='', $value='', $checked=false, $extra=''): static {
-        return $this->tickable('form_checkbox', $data, $value, $checked, $extra, 'checkbox');
-        //$this->fields[] = $data;
-        //$this->htm .= form_checkbox($data, $value, $checked, $this->attrToString($extra, 'checkbox'));
-        //return $this;
+    public function checkbox(string $name, $value='', bool $checked=false, string $extra=''): static {
+        return $this->tickable($name, $value, $checked, $extra, 'checkbox');
     }
     private function inputGroup(string $type, string $name, array $options, array $checked=[], string $extra=''): static {
         if ( $extra !== '' )
@@ -218,29 +215,22 @@ class FormBuilder {
     public function radioGroup($name, $options, $checked=[], $extra=''): static {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
-    public function radio($data='', $value='', $checked=false, $extra=''): static {
-        return $this->tickable('form_radio', $data, $value, $checked, $extra, 'radio');
-        //$this->fields[] = $data;
-        //$this->htm .= form_radio($data, $value, $checked, $this->attrToString($extra, 'radio'));
-        //return $this;
+    public function radio(string $name, $value='', bool $checked=false, string $extra=''): static {
+        return $this->tickable($name, $value, $checked, $extra, 'radio');
     }
     public function label(string $label_text='', string $id='', array $attributes=[]): static {
         $this->setPendingLabel($label_text, $id, $attributes);
         $this->htm .= form_label($label_text, $id, $this->attrToArray($attributes, 'label', false));
         return $this;
     }
-    protected function btn($helper, $name, $value, $extra) {
-        $this->htm .= $helper($name, $value, $this->attrToString($extra, null, false));
-        return $this;
+    public function submit(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'submit', 'submit');
     }
-    public function submit($name, $value='', $extra=''): static {
-        return $this->btn('form_submit', $name, $value, $extra);
+    public function reset(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'reset', 'reset');
     }
-    public function reset($name, $value='', $extra=''): static {
-        return $this->btn('form_reset', $name, $value, $extra);
-    }
-    public function button($name='', $content='', $extra=''): static {
-        return $this->btn('form_button', $name, $value, $extra);
+    public function button(string $name, $value='', string $extra=''): static {
+        return $this->addInput($name, $value, $extra, 'button', 'button', true);
     }
     public function html(string $htm): static {
         $this->htm .= $htm;

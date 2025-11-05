@@ -51,8 +51,10 @@ class Home extends BaseController {
         $frm->label('Number')->number('number', 2, 'min="0" max="6"');
         $frm->label('Date')->date('date');
         $frm->label('Range')->range('range', 3, 'min="0" max="6"');
-        $frm->label('Html content')->textarea('html_content');
-        $frm->submit('', 'Send');
+        $frm->label('Html content')->textarea('html_content', 'poop');
+        $frm->checkbox('abc', 12)->label('Abc');
+        $frm->radio('xyz', 12)->label('Xyz');
+        $frm->submit('', 'Send')->reset('', 'Reset')->button('', 'Btn');
         echo $frm->close();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);
     }
