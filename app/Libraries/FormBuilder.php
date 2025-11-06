@@ -121,29 +121,20 @@ class FormBuilder {
         $this->addAttribute($atts, $type, $addId);
         return $this->attributes->toArray();    
     }
-    protected function open_form($action='', $attributes='', $hidden=[], $multi=false): static {
+    protected function open_form($action, $extra, $hidden=[], $multi=false): static {
         $this->clear();
         if ( $multi === true ) 
-            $this->htm .= form_open_multipart($action, $this->attrToString($attributes, null, false), $hidden);
+            $this->htm .= form_open_multipart($action, $this->attrToString($extra, null, false), $hidden);
         else 
-            $this->htm .= form_open($action, $this->attrToString($attributes, null, false), $hidden);
+            $this->htm .= form_open($action, $this->attrToString($extra, null, false), $hidden);
         $this->form_opened = true;
         return $this;
     }
-    public function open($action='', $attributes='', $hidden=[]): static {
-        return $this->open_form($action, $attributes, $hidden, false);
+    public function open(string $action='', string $extra=''): static {
+        return $this->open_form($action, $extra, [], false);
     }
-    public function open_multipart($action='', $attributes='', $hidden=[]): static {
-        return $this->open_form($action, $attributes, $hidden, true);
-    }
-    private function addField(string $helper, $name, $value='', $extra='', ?string $type = null): static {
-        $this->fields[] = $name;
-        if ( $type !== null ) {
-            $this->htm .= $helper($name, $value, $extra, $type);
-        } else {
-            $this->htm .= $helper($name, $value, $extra);
-        }
-        return $this;
+    public function open_multipart(string $action='', string $extra=''): static {
+        return $this->open_form($action, $extra, [], true);
     }
     protected function stdConfig($name, $value, $type) {
         return [
@@ -204,32 +195,29 @@ class FormBuilder {
     public function button(string $name, $value='', string $extra=''): static {
         return $this->addInput($name, $value, $extra, 'button', 'button', true);
     }
-    protected function addSelect(string $name='', array $options=[], array $selected=[], $extra='', $multi): static {
+    protected function addSelect($name, $options, $selected, $extra, $multi): static {
         $this->fields[] = $name;
-        if ( true === $multi )
-            $this->htm .= form_multiselect($name, $options, $selected, $this->attrToString($extra, 'select'));
-        else
-            $this->htm .= form_dropdown($name, $options, $selected, $this->attrToString($extra, 'select'));
-        return $this;
-    }
-    public function select(string $name, array $options=[], array $selected=[], string $extra=''): static {
         $ctrl = new SelectControl();
         $cfg = [
             'name'=>$name,
             'options'=>$options, 
             'selected'=>$selected
         ];
+        if ( true === $multi ) 
+            $cfg['multiple'] = 'multiple';
         $ctrl->init($cfg, 'select', 'select', $extra);
         $this->htm .= $ctrl->render();
         return $this;
-        //return $this->addSelect($name, $options, $selected, $extra, false);
+    }
+    public function select(string $name, array $options=[], array $selected=[], string $extra=''): static {
+        return $this->addSelect($name, $options, $selected, $extra, false);
     }
     public function multiselect(string $name='', array $options=[], array $selected=[], $extra=''): static {
         return $this->addSelect($name, $options, $selected, $extra, true);
     }
-    public function fieldset($legend_text='', $attributes=[]): static {
+    public function fieldset($legend_text='', $extra=''): static {
         $this->fieldset_close();
-        $this->htm .= form_fieldset($legend_text, $this->attrToArray($attributes, null, false));
+        $this->htm .= form_fieldset($legend_text, $this->attrToArray($extra, null, false));
         $this->fieldset_open = true;
         return $this;
     }

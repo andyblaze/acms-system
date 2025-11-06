@@ -38,26 +38,25 @@ class Home extends BaseController {
     public function index(): string {
         helper('inflector');
         $frm = new FormBuilder();
-        $frm->open('/api/content/save')->fieldset();
-        //$this->buildEnums($frm);
-        //$frm->fieldset();
-        //$this->buildSelects($frm);
-        $frm->fieldset();
-        $frm->label('Select content')->select('abc', ['a', 'b', 'c'], [], '');
-        $frm->label('Text content')->input('text_content');
-        $frm->label('Password')->password('password');
-        $frm->label('Email')->email('email');
-        $frm->label('File')->upload('file');
-        $frm->wrap('div', 'class="abc"')->label('Color')->color('color');
-        $frm->wrap('div')->label('Number')->number('number', 2, 'min="0" max="6"');
-        $frm->wrap('div')->label('Date')->date('date');
-        $frm->wrap('div')->label('Range')->range('range', 3, 'min="0" max="6"')->unwrap();
-        $frm->label('Html content')->textarea('html_content', 'poop');
-        $frm->checkbox('abc', 12)->label('Abc');
-        $frm->radio('xyz', 12)->label('Xyz');
-        $frm->wrap('div')->submit('', 'Send');
-        $frm->wrap('div')->reset('', 'Reset');
-        $frm->wrap('div')->button('', 'Btn');
+        $frm->open('/api/content/save')->fieldset()->
+        label('Select content')->select('abc', ['a', 'b', 'c'], [], '')->
+        label('mSelect content')->multiselect('mabc', ['a', 'b', 'c'], [], '')->
+        label('Text content')->input('text_content')->
+        label('Password')->password('password')->
+        label('Email')->email('email')->
+        label('File')->upload('file')->
+        // wrap will unwrap() before it wraps again
+        wrap('div', 'class="abc"')->label('Color')->color('color')->
+        wrap('div')->label('Number')->number('number', 2, 'min="0" max="6"')->
+        wrap('div')->label('Date')->date('date')->
+        // manual unwrap
+        wrap('div')->label('Range')->range('range', 3, 'min="0" max="6"')->unwrap()->
+        label('Html content')->textarea('html_content', 'poop')->
+        checkbox('abc', 12)->label('Abc')->
+        radio('xyz', 12)->label('Xyz')->
+        wrap('div')->submit('', 'Send')->
+        wrap('div')->reset('', 'Reset')->
+        wrap('div')->button('', 'Btn');
         echo $frm->close();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);
     }
