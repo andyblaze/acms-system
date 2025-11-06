@@ -5,10 +5,10 @@ use App\Libraries\AttributesManager;
 use Config\FormTheme;
 
 class Control {
-    private array $cfg = [];
-    private array $theme = [];
-    private ?object $attributes = null;
-    private string $tag = '';
+    protected array $cfg = [];
+    protected array $theme = [];
+    protected ?object $attributes = null;
+    protected string $tag = '';
     private array $nonVoids = [
         'textarea', 'button'
     ];
@@ -48,6 +48,36 @@ class Control {
     }
 }
 
+class LabelControl extends Control {
+    public function render() {
+        $value = $this->attributes->get('value');
+        $this->attributes->remove('value');
+        return  "<{$this->tag} " . 
+                $this->attributes->toString() .
+                ">{$value}</{$this->tag}>\n";
+    }
+}
+
+class SelectControl extends Control {
+    protected function renderOptions($opts, $selected) {
+        $result = '';
+        foreach ( $opts as $val=>$txt ) {
+            $sel = in_array($val, $selected) ? ' selected="selected"' : '';
+            $result .= "<option value=\"{$val}\"{$sel}>{$txt}</option>";
+        }
+        return $result;
+    }
+    public function render() {
+        $opts = $this->attributes->get('options');
+        $sel = $this->attributes->get('selected');
+        $options = $this->renderOptions($opts, $sel);
+        $this->attributes->remove('options');
+        $this->attributes->remove('selected');
+        return  "<{$this->tag} " . 
+                $this->attributes->toString() .
+                ">{$options}</{$this->tag}>\n";
+    }
+}
 class FormBuilder {
     protected $fields = [];
     protected $pendingLabel = null;
@@ -83,8 +113,8 @@ class FormBuilder {
             $this->pendingLabel['for'] = $id;
         }
     }
-    protected function attrToString($atts, $type=null, $addId=true) {
-        $this->addAttribute($atts, $type, $addId);
+    protected function attrToString($atts) { //, $type=null, $addId=true) {
+        $this->attributes->initAttributes($atts);//, $type, $addId);
         return $this->attributes->toString();
     }  
     protected function attrToArray($atts, $type=null, $addId=true) {
@@ -183,7 +213,16 @@ class FormBuilder {
         return $this;
     }
     public function select(string $name, array $options=[], array $selected=[], string $extra=''): static {
-        return $this->addSelect($name, $options, $selected, $extra, false);
+        $ctrl = new SelectControl();
+        $cfg = [
+            'name'=>$name,
+            'options'=>$options, 
+            'selected'=>$selected
+        ];
+        $ctrl->init($cfg, 'select', 'select', $extra);
+        $this->htm .= $ctrl->render();
+        return $this;
+        //return $this->addSelect($name, $options, $selected, $extra, false);
     }
     public function multiselect(string $name='', array $options=[], array $selected=[], $extra=''): static {
         return $this->addSelect($name, $options, $selected, $extra, true);
@@ -224,7 +263,12 @@ class FormBuilder {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
     public function label(string $label_text, string $id='', string $extra=''): static {
-        $this->htm .= form_label($label_text, $id, $this->attrToArray($extra, 'label', false));
+        $ctrl = new LabelControl();
+        $cfg = ['value'=>$label_text];
+        if ( $id !== '' ) 
+            $cfg['for'] = $id;
+        $ctrl->init($cfg, 'label', 'label', $extra);
+        $this->htm .= $ctrl->render();
         return $this;
     }
     public function unwrap() {
@@ -236,7 +280,7 @@ class FormBuilder {
     }
     public function wrap(string $tag, string $extra='') {
         $this->unwrap();
-        $attrs = $this->attrToString($extra, null, false);
+        $attrs = $extra === '' ? '' : ' ' . $extra; //$this->attrToString($extra, null, false);
         $this->htm .= "<{$tag}{$attrs}>";
         $this->wrapTag = $tag;
         return $this;

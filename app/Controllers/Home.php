@@ -43,11 +43,12 @@ class Home extends BaseController {
         //$frm->fieldset();
         //$this->buildSelects($frm);
         $frm->fieldset();
+        $frm->label('Select content')->select('abc', ['a', 'b', 'c'], [], '');
         $frm->label('Text content')->input('text_content');
         $frm->label('Password')->password('password');
         $frm->label('Email')->email('email');
         $frm->label('File')->upload('file');
-        $frm->wrap('div')->label('Color')->color('color');
+        $frm->wrap('div', 'class="abc"')->label('Color')->color('color');
         $frm->wrap('div')->label('Number')->number('number', 2, 'min="0" max="6"');
         $frm->wrap('div')->label('Date')->date('date');
         $frm->wrap('div')->label('Range')->range('range', 3, 'min="0" max="6"')->unwrap();
