@@ -238,7 +238,8 @@ class FormBuilder {
     }
     public function fieldset($legend_text='', $extra=''): static {
         $this->fieldset_close();
-        $this->fieldsetCtrl = new FieldsetControl($this->themeName);
+        if ( $this->fieldsetCtrl === null )
+            $this->fieldsetCtrl = new FieldsetControl($this->themeName);
         $this->fieldsetCtrl->init([], 'fieldset', 'fieldset', $extra);
         $this->htm .= $this->fieldsetCtrl->open($legend_text);
         $this->fieldset_open = true;
@@ -256,21 +257,25 @@ class FormBuilder {
         $cfg['checked'] = $checked;
         return $this->addInput($name, $value, $extra, $type, $type);
     }
-    private function inputGroup(string $type, string $name, array $options, array $checked=[], string $extra=''): static {
+    private function inputGroup(string $type, $name, $options, $checked, $extra): static {
+        $workingName = $name;
+        if ( $type === 'checkbox' && strpos($name, '[]') === false )
+            $workingName .= '[]';
+            
         if ( $extra !== '' )
             $extra = ' ' . $extra;
-        foreach ($options as $opt => $text) {
+        foreach ( $options as $opt => $text ) {
             $boxId = $name . $opt;
             $isChecked = in_array($opt, $checked, true);
-            $this->label($text, $boxId)
-                 ->{$type}($name, $opt, $isChecked, "id=\"{$boxId}\"{$extra}");
+            $this->{$type}($workingName, $opt, $isChecked, "id=\"{$boxId}\"{$extra}")
+                 ->label($text, $boxId);
         }
         return $this;
     }
-    public function checkboxGroup($name, $options, $checked=[], $extra=''): static {
+    public function checkboxGroup(string $name, array $options, array $checked=[], string $extra=''): static {
         return $this->inputGroup('checkbox', $name, $options, $checked, $extra);
     }
-    public function radioGroup($name, $options, $checked=[], $extra=''): static {
+    public function radioGroup(string $name, array $options, array $checked=[], string $extra=''): static {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
     public function label(string $label_text, string $id='', string $extra=''): static {
