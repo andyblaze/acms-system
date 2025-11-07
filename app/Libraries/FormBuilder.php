@@ -12,9 +12,9 @@ class Control {
     private array $nonVoids = [
         'textarea', 'button'
     ];
-    public function __construct() {
+    public function __construct($theme=null) {
         $cfg = new FormTheme();
-        $this->theme = $cfg->bootstrap ?? [];
+        $this->theme = $cfg->{$theme} ?? [];
         $this->attributes = new AttributesManager();    
     }
     protected function addThemeClass(string $key) {
@@ -78,6 +78,27 @@ class SelectControl extends Control {
                 ">{$options}</{$this->tag}>\n";
     }
 }
+class FormControl extends Control {
+    public function open() {
+        return  "<{$this->tag} " .
+                $this->attributes->toString() .
+                ">";
+    }
+    public function close() {
+        return "</{$this->tag}>\n";
+    }
+}
+class FieldsetControl extends Control {
+    public function open(string $legend_text) {
+        $legend = ($legend_text === '' ? '' : "<legend>{$legend_text}</legend>");
+        return  "<{$this->tag} " .
+                $this->attributes->toString() .
+                ">{$legend}\n";
+    }
+    public function close() {
+        return "</{$this->tag}>\n";
+    }
+}
 class FormBuilder {
     protected $fields = [];
     protected $pendingLabel = null;
@@ -85,17 +106,21 @@ class FormBuilder {
     protected $fieldset_open = false;
     protected $form_opened = false;
     protected $wrapTag = '';
+    protected $themeName = '';
     protected $attributes = null;
     protected $control = null;
+    protected $formCtrl = null;
+    protected $fieldsetCtrl = null;
 
     protected array $theme = [];
     
     public function __construct(string $theme='bootstrap') {
         helper('form');
         $cfg = new FormTheme();
+        $this->themeName = $theme;
         $this->theme = $cfg->$theme ?? [];
         $this->attributes = new AttributesManager();
-        $this->control = new Control();
+        $this->control = new Control($theme);
     }    
     protected function addAttribute($atts, $type=null, $addId=true) {
         if ( array_key_exists($type, $this->theme) ) {
@@ -121,20 +146,16 @@ class FormBuilder {
         $this->addAttribute($atts, $type, $addId);
         return $this->attributes->toArray();    
     }
-    protected function open_form($action, $extra, $hidden=[], $multi=false): static {
-        $this->clear();
-        if ( $multi === true ) 
-            $this->htm .= form_open_multipart($action, $this->attrToString($extra, null, false), $hidden);
-        else 
-            $this->htm .= form_open($action, $this->attrToString($extra, null, false), $hidden);
+    public function open(string $action='', string $extra=''): static {
+        $this->formCtrl = new FormControl();
+        $cfg = ['action'=>base_url($action), 'method'=>'post', 'enctype'=>'multipart/form-data'];
+        $this->formCtrl->init($cfg, 'form', 'form', $extra);
+        $this->htm .= $this->formCtrl->open();
         $this->form_opened = true;
         return $this;
     }
-    public function open(string $action='', string $extra=''): static {
-        return $this->open_form($action, $extra, [], false);
-    }
     public function open_multipart(string $action='', string $extra=''): static {
-        return $this->open_form($action, $extra, [], true);
+        return $this->open($action, $extra);
     }
     protected function stdConfig($name, $value, $type) {
         return [
@@ -197,7 +218,7 @@ class FormBuilder {
     }
     protected function addSelect($name, $options, $selected, $extra, $multi): static {
         $this->fields[] = $name;
-        $ctrl = new SelectControl();
+        $ctrl = new SelectControl($this->themeName);
         $cfg = [
             'name'=>$name,
             'options'=>$options, 
@@ -217,13 +238,15 @@ class FormBuilder {
     }
     public function fieldset($legend_text='', $extra=''): static {
         $this->fieldset_close();
-        $this->htm .= form_fieldset($legend_text, $this->attrToArray($extra, null, false));
+        $this->fieldsetCtrl = new FieldsetControl($this->themeName);
+        $this->fieldsetCtrl->init([], 'fieldset', 'fieldset', $extra);
+        $this->htm .= $this->fieldsetCtrl->open($legend_text);
         $this->fieldset_open = true;
         return $this;
     }
-    public function fieldset_close($extra=''): static {
-        if ( $this->fieldset_open === true ) {
-            $this->htm .= form_fieldset_close($extra);
+    public function fieldset_close(): static {
+        if ( $this->fieldsetCtrl !== null ) {
+            $this->htm .= $this->fieldsetCtrl->close();
             $this->fieldset_open = false;
         }
         return $this;
@@ -251,7 +274,7 @@ class FormBuilder {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
     public function label(string $label_text, string $id='', string $extra=''): static {
-        $ctrl = new LabelControl();
+        $ctrl = new LabelControl($this->themeName);
         $cfg = ['value'=>$label_text];
         if ( $id !== '' ) 
             $cfg['for'] = $id;
@@ -281,7 +304,7 @@ class FormBuilder {
         $this->fieldset_close();
         $this->hidden('field_names', implode(',', $this->fields));
         $this->hidden('nonce', randomStr());
-        $this->htm .= form_close($extra);
+        $this->htm .= $this->formCtrl->close();
         $output = $this->htm;        
         $this->clear();
         return $output;
