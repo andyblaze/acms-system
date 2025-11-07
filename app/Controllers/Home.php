@@ -45,6 +45,8 @@ class Home extends BaseController {
         label('Password')->password('password')->
         label('Email')->email('email')->
         label('File')->upload('file')->
+        checkboxGroup('ghg', ['h', 'k', 'l'])->
+        radioGroup('vbv', ['w', 'e', 'r'])->
         // wrap will unwrap() before it wraps again
         wrap('div', 'class="abc"')->label('Color')->color('color')->
         wrap('div')->label('Number')->number('number', 2, 'min="0" max="6"')->

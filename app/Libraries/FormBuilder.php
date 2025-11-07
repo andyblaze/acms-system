@@ -264,12 +264,14 @@ class FormBuilder {
             
         if ( $extra !== '' )
             $extra = ' ' . $extra;
+        $this->wrap('div');
         foreach ( $options as $opt => $text ) {
             $boxId = $name . $opt;
             $isChecked = in_array($opt, $checked, true);
             $this->{$type}($workingName, $opt, $isChecked, "id=\"{$boxId}\"{$extra}")
                  ->label($text, $boxId);
         }
+        $this->unwrap();
         return $this;
     }
     public function checkboxGroup(string $name, array $options, array $checked=[], string $extra=''): static {
