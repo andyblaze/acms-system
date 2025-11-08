@@ -37,12 +37,12 @@ class Control {
             $this->attributes->remove('type');
             $tag =  "<{$this->tag} " . 
                     $this->attributes->toString() . 
-                    ">{$value}</{$this->tag}>";
+                    ">{$value}</{$this->tag}>\n";
         }
         else {
             $tag =  "<{$this->tag} " . 
                     $this->attributes->toString() .
-                    ' />';
+                    " />\n";
         }
         return $tag;
     }
@@ -63,7 +63,7 @@ class SelectControl extends Control {
         $result = '';
         foreach ( $opts as $val=>$txt ) {
             $sel = in_array($val, $selected) ? ' selected="selected"' : '';
-            $result .= "<option value=\"{$val}\"{$sel}>{$txt}</option>";
+            $result .= "<option value=\"{$val}\"{$sel}>{$txt}</option>\n";
         }
         return $result;
     }
@@ -128,16 +128,6 @@ class FormBuilder {
             $this->attributes->initAttributes($atts, $addId)->addClass($cls);            
         }
     }    
-    protected function setPendingLabel($text, $id, $atts) {
-        $this->pendingLabel = ['text'=>$text, 'for'=>$id, 'attributes'=>$atts];
-    }
-    protected function setIds() {
-        if ( $this->pendingLabel === null ) return;
-        $id = $this->attributes->get('id'); 
-        if ( $id !== null ) {
-            $this->pendingLabel['for'] = $id;
-        }
-    }
     protected function attrToString($atts) { //, $type=null, $addId=true) {
         $this->attributes->initAttributes($atts);//, $type, $addId);
         return $this->attributes->toString();

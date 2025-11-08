@@ -6,7 +6,7 @@ class AttributesManager {
     protected $attrArray = [];
     protected $errors = [];
     
-    public function initAttributes(string|array $attrs, bool $addId=true) {
+    public function initAttributes(string|array $attrs, bool $addId=false) {
         if ( is_string($attrs) ) {
             if ( $this->test($attrs) === false ) {
                 $errs = implode(', ', $this->errors);
