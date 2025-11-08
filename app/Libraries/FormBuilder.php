@@ -23,6 +23,9 @@ class Control {
             $this->attributes->addClass($cls);            
         }
     }   
+    public function getTag() {
+        return $this->tag;
+    }
     public function getAttr($attr) {
         return $this->attributes->get($attr);
     }
@@ -144,18 +147,27 @@ class FormBuilder {
         $this->addAttribute($atts, $type, $addId);
         return $this->attributes->toArray();    
     }
-    protected function pair(Control $first, Control $second, string $direction): void {
+    protected function pair(Control $label, Control $ctrl, string $direction): void {
         // Resolve IDs/for attributes
-        $id = $first->getAttr('for') ?: $second->getAttr('id') ?: randomStr();
-        $first->setAttr('for', $id);
-        $second->setAttr('id', $id);
-
-        // Determine order
-        if ( $direction === 'label-first' ) {
-            $this->htm .= $first->render() . $second->render();
-        } else {
-            $this->htm .= $second->render() . $first->render();
+        $id = $label->getAttr('for') ?: $ctrl->getAttr('id') ?: randomStr();
+        $label->setAttr('for', $id);
+        $ctrl->setAttr('id', $id);
+        
+        //dd($ctrl->getAttr('type'));
+        if ( in_array($ctrl->getAttr('type'), ['checkbox', 'radio']) ) {
+            $open = '<div class="form-check">';
+            $close = '</div>';
         }
+        else
+            $open = $close = '';
+            
+        $this->htm .= $open;
+        // Determine order
+        if ( $direction === 'label-first' )
+            $this->htm .= $label->render() . $ctrl->render();
+        else
+            $this->htm .= $ctrl->render() . $label->render();
+        $this->htm .= $close;
     }
     protected function checkPending(Control $ctrl) {
         if ( $this->pendingLabel ) {
@@ -280,9 +292,9 @@ class FormBuilder {
     protected function tickable($name, $value, $checked, $extra, $type): static {
         $cfg = $this->stdConfig($name, $value, $type);
         $cfg['checked'] = $checked;
-        $this->html('<div class="form-check">');
+        //$this->html('<div class="form-check">');
                 $this->addInput($name, $value, $extra, $type, $type);
-            $this->html('</div>');
+            //$this->html('</div>');
         return $this;
     }
     private function inputGroup(string $type, $name, $options, $checked, $extra): static {
@@ -316,7 +328,7 @@ class FormBuilder {
         $label->init($cfg, 'label', 'label', $extra);
         if ( $this->pendingControl ) {
             // Control came first -> control-first
-            $this->pair($this->pendingControl, $label, 'control-first');
+            $this->pair($label, $this->pendingControl, 'control-first');
             $this->pendingControl = null;
         } else {
             $this->pendingLabel = $label;
