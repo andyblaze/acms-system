@@ -22,7 +22,13 @@ class Control {
             $cls = $this->theme[$key]['class'];
             $this->attributes->addClass($cls);            
         }
-    }    
+    }   
+    public function getAttr($attr) {
+        return $this->attributes->get($attr);
+    }
+    public function setAttr($k, $v) {
+        $this->attributes->set($k, $v);
+    }
     public function init(array $cfg, string $tag, string $themeKey, string $attrs) {
         $this->cfg = $cfg;
         $this->tag = $tag;
@@ -101,7 +107,6 @@ class FieldsetControl extends Control {
 }
 class FormBuilder {
     protected $fields = [];
-    protected $pendingLabel = null;
     protected $htm = '';
     protected $fieldset_open = false;
     protected $form_opened = false;
@@ -111,6 +116,9 @@ class FormBuilder {
     protected $control = null;
     protected $formCtrl = null;
     protected $fieldsetCtrl = null;
+    protected $pendingLabel = null;
+    protected $pendingControl = null;
+    protected string $pairDirection = ''; // 'label-first' or 'control-first'
 
     protected array $theme = [];
     
@@ -136,6 +144,29 @@ class FormBuilder {
         $this->addAttribute($atts, $type, $addId);
         return $this->attributes->toArray();    
     }
+    protected function pair(Control $first, Control $second, string $direction): void {
+        // Resolve IDs/for attributes
+        $id = $first->getAttr('for') ?: $second->getAttr('id') ?: randomStr();
+        $first->setAttr('for', $id);
+        $second->setAttr('id', $id);
+
+        // Determine order
+        if ( $direction === 'label-first' ) {
+            $this->htm .= $first->render() . $second->render();
+        } else {
+            $this->htm .= $first->render() . $second->render();
+        }
+    }
+    protected function checkPending() {
+        if ( $this->pendingLabel ) {
+            // Label came first -> label-first
+            $this->pair($this->pendingLabel, $this->control, 'label-first');
+            $this->pendingLabel = null;
+        } else {
+            $this->pendingControl = $this->control;
+            $this->pairDirection = 'control-first';
+        }
+    }
     public function open(string $action='', string $extra=''): static {
         $this->formCtrl = new FormControl();
         $cfg = ['action'=>base_url($action), 'method'=>'post', 'enctype'=>'multipart/form-data'];
@@ -158,7 +189,10 @@ class FormBuilder {
         $cfg = $this->stdConfig($name, $value, $type);
         $tag = (true === $typeToTag ? $type : 'input');
         $this->control->init($cfg, $tag, $themeKey, $extra); 
-        $this->htm .= $this->control->render();
+
+        $this->checkPending();
+        
+        //$this->htm .= $this->control->render();
         return $this;
     }
     public function hidden(string $name, $value='', string $extra=''): static {
@@ -273,12 +307,20 @@ class FormBuilder {
         return $this->inputGroup('radio', $name, $options, $checked, $extra);
     }
     public function label(string $label_text, string $id='', string $extra=''): static {
-        $ctrl = new LabelControl($this->themeName);
+        $label = new LabelControl($this->themeName);
         $cfg = ['value'=>$label_text];
         if ( $id !== '' ) 
             $cfg['for'] = $id;
-        $ctrl->init($cfg, 'label', 'label', $extra);
-        $this->htm .= $ctrl->render();
+        $label->init($cfg, 'label', 'label', $extra);
+        if ($this->pendingControl) {
+            // Control came first -> control-first
+            $this->pair($this->pendingControl, $label, 'control-first');
+            $this->pendingControl = null;
+        } else {
+            $this->pendingLabel = $label;
+            $this->pairDirection = 'label-first';
+        }
+        //$this->htm .= $ctrl->render();
         return $this;
     }
     public function unwrap() {
