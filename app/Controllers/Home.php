@@ -39,6 +39,8 @@ class Home extends BaseController {
         helper('inflector');
         $frm = new FormBuilder();
         $frm->open('/api/content/save')->fieldset()->
+        checkbox('abc', 12)->label('Abc')->
+        radio('xyz', 12)->label('Xyz')->
         label('Select content')->select('abc', ['a', 'b', 'c'], [], '')->
         label('mSelect content')->multiselect('mabc', ['a', 'b', 'c'], [], '')->
         label('Text content')->input('text_content')->
@@ -54,8 +56,6 @@ class Home extends BaseController {
         // manual unwrap
         wrap('div')->label('Range')->range('range', 3, 'min="0" max="6"')->unwrap()->
         label('Html content')->textarea('html_content', 'poop')->
-        checkbox('abc', 12)->label('Abc')->
-        radio('xyz', 12)->label('Xyz')->
         wrap('div')->submit('', 'Send')->
         wrap('div')->reset('', 'Reset')->
         wrap('div')->button('', 'Btn');

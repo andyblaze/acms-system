@@ -154,16 +154,16 @@ class FormBuilder {
         if ( $direction === 'label-first' ) {
             $this->htm .= $first->render() . $second->render();
         } else {
-            $this->htm .= $first->render() . $second->render();
+            $this->htm .= $second->render() . $first->render();
         }
     }
-    protected function checkPending() {
+    protected function checkPending(Control $ctrl) {
         if ( $this->pendingLabel ) {
             // Label came first -> label-first
-            $this->pair($this->pendingLabel, $this->control, 'label-first');
+            $this->pair($this->pendingLabel, $ctrl, 'label-first');
             $this->pendingLabel = null;
         } else {
-            $this->pendingControl = $this->control;
+            $this->pendingControl = $ctrl;
             $this->pairDirection = 'control-first';
         }
     }
@@ -190,7 +190,8 @@ class FormBuilder {
         $tag = (true === $typeToTag ? $type : 'input');
         $this->control->init($cfg, $tag, $themeKey, $extra); 
 
-        $this->checkPending();
+        $this->checkPending($this->control); 
+        //$this->pair($this->pendingLabel, $this->control, 'control-first');
         
         //$this->htm .= $this->control->render();
         return $this;
@@ -251,7 +252,7 @@ class FormBuilder {
         if ( true === $multi ) 
             $cfg['multiple'] = 'multiple';
         $ctrl->init($cfg, 'select', 'select', $extra);
-        $this->htm .= $ctrl->render();
+        $this->checkPending($ctrl);
         return $this;
     }
     public function select(string $name, array $options=[], array $selected=[], string $extra=''): static {
@@ -279,7 +280,10 @@ class FormBuilder {
     protected function tickable($name, $value, $checked, $extra, $type): static {
         $cfg = $this->stdConfig($name, $value, $type);
         $cfg['checked'] = $checked;
-        return $this->addInput($name, $value, $extra, $type, $type);
+        $this->html('<div class="form-check">');
+                $this->addInput($name, $value, $extra, $type, $type);
+            $this->html('</div>');
+        return $this;
     }
     private function inputGroup(string $type, $name, $options, $checked, $extra): static {
         $workingName = $name;
@@ -292,10 +296,8 @@ class FormBuilder {
         foreach ( $options as $opt => $text ) {
             $boxId = $name . $opt;
             $isChecked = in_array($opt, $checked, true);
-            $this->wrap('div', 'class="form-check"')->
-                {$type}($workingName, $opt, $isChecked, "id=\"{$boxId}\"")
-                 ->label($text, $boxId)->
-            unwrap();
+            $this->{$type}($workingName, $opt, $isChecked, "id=\"{$boxId}\"")
+                 ->label($text, $boxId);
         }
         $this->unwrap();
         return $this;
@@ -312,7 +314,7 @@ class FormBuilder {
         if ( $id !== '' ) 
             $cfg['for'] = $id;
         $label->init($cfg, 'label', 'label', $extra);
-        if ($this->pendingControl) {
+        if ( $this->pendingControl ) {
             // Control came first -> control-first
             $this->pair($this->pendingControl, $label, 'control-first');
             $this->pendingControl = null;
