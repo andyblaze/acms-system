@@ -1,113 +1,11 @@
 <?php
-namespace App\Libraries;
+namespace App\Libraries\Form;
 
-use App\Libraries\AttributesManager;
+use App\Libraries\Form\Control;
+use App\Libraries\Form\AttributesManager;
+use App\Libraries\Form\ControlBinder;
 use Config\FormTheme;
 
-class Control {
-    protected array $cfg = [];
-    protected array $theme = [];
-    protected ?object $attributes = null;
-    protected string $tag = '';
-    private array $nonVoids = [
-        'textarea', 'button'
-    ];
-    public function __construct($theme=null) {
-        $cfg = new FormTheme();
-        $this->theme = $cfg->{$theme} ?? [];
-        $this->attributes = new AttributesManager();    
-    }
-    protected function addThemeClass(string $key) {
-        if ( array_key_exists($key, $this->theme) ) {
-            $cls = $this->theme[$key]['class'];
-            $this->attributes->addClass($cls);            
-        }
-    }   
-    public function getTag() {
-        return $this->tag;
-    }
-    public function getAttr($attr) {
-        return $this->attributes->get($attr);
-    }
-    public function setAttr($k, $v) {
-        $this->attributes->set($k, $v);
-    }
-    public function init(array $cfg, string $tag, string $themeKey, string $attrs) {
-        $this->cfg = $cfg;
-        $this->tag = $tag;
-        $this->attributes->initAttributes($attrs);
-        $this->attributes->merge($cfg);
-        $this->addThemeClass($themeKey);
-    }
-    public function render() {
-        if ( in_array($this->tag, $this->nonVoids) ) { 
-            $value = $this->attributes->get('value');
-            $this->attributes->remove('value');
-            $this->attributes->remove('type');
-            $tag =  "<{$this->tag} " . 
-                    $this->attributes->toString() . 
-                    ">{$value}</{$this->tag}>\n";
-        }
-        else {
-            $tag =  "<{$this->tag} " . 
-                    $this->attributes->toString() .
-                    " />\n";
-        }
-        return $tag;
-    }
-}
-
-class LabelControl extends Control {
-    public function render() {
-        $value = $this->attributes->get('value');
-        $this->attributes->remove('value');
-        return  "<{$this->tag} " . 
-                $this->attributes->toString() .
-                ">{$value}</{$this->tag}>\n";
-    }
-}
-
-class SelectControl extends Control {
-    protected function renderOptions($opts, $selected) {
-        $result = '';
-        foreach ( $opts as $val=>$txt ) {
-            $sel = in_array($val, $selected) ? ' selected="selected"' : '';
-            $result .= "<option value=\"{$val}\"{$sel}>{$txt}</option>\n";
-        }
-        return $result;
-    }
-    public function render() {
-        $opts = $this->attributes->get('options');
-        $sel = $this->attributes->get('selected');
-        $options = $this->renderOptions($opts, $sel);
-        $this->attributes->remove('options');
-        $this->attributes->remove('selected');
-        return  "<{$this->tag} " . 
-                $this->attributes->toString() .
-                ">{$options}</{$this->tag}>\n";
-    }
-}
-class FormControl extends Control {
-    public function open() {
-        return  "<{$this->tag} " .
-                $this->attributes->toString() .
-                ">";
-    }
-    public function close() {
-        return "</{$this->tag}>\n";
-    }
-}
-class FieldsetControl extends Control {
-    public function open(string $legend_text) {
-        $legend = ($legend_text === '' ? '' : "<legend>{$legend_text}</legend>");
-        return  "<{$this->tag} " .
-                $this->attributes->toString() .
-                ">{$legend}\n";
-    }
-    public function close() {
-        return "</{$this->tag}>\n";
-    }
-}
 class FormBuilder {
     protected $fields = [];
     protected $htm = '';
@@ -119,10 +17,6 @@ class FormBuilder {
     protected $control = null;
     protected $formCtrl = null;
     protected $fieldsetCtrl = null;
-    protected $pendingLabel = null;
-    protected $pendingControl = null;
-    protected string $pairDirection = ''; // 'label-first' or 'control-first'
-
     protected array $theme = [];
     
     public function __construct(string $theme='bootstrap') {
@@ -130,6 +24,7 @@ class FormBuilder {
         $cfg = new FormTheme();
         $this->themeName = $theme;
         $this->theme = $cfg->$theme ?? [];
+        $this->ctrlBinder = new ControlBinder($this->theme);
         $this->attributes = new AttributesManager();
         $this->control = new Control($theme);
     }    
@@ -146,36 +41,6 @@ class FormBuilder {
     protected function attrToArray($atts, $type=null, $addId=true) {
         $this->addAttribute($atts, $type, $addId);
         return $this->attributes->toArray();    
-    }
-    protected function pair(Control $label, Control $ctrl, string $direction): void {
-        // Resolve IDs/for attributes
-        $id = $label->getAttr('for') ?: $ctrl->getAttr('id') ?: randomStr();
-        $label->setAttr('for', $id);
-        $ctrl->setAttr('id', $id);
-        
-        if ( in_array($ctrl->getAttr('type'), ['checkbox', 'radio']) ) {
-            $cls = $cls = $this->theme['tickable_wrap']['class'];
-            $open = "<div class=\"{$cls}\">";
-            $close = '</div>';
-        }
-        else
-            $open = $close = '';
-            
-        $this->htm .= $open;
-        if ( $direction === 'label-first' )
-            $this->htm .= $label->render() . $ctrl->render();
-        else
-            $this->htm .= $ctrl->render() . $label->render();
-        $this->htm .= $close;
-    }
-    protected function checkPending(Control $ctrl) {
-        if ( $this->pendingLabel ) {
-            $this->pair($this->pendingLabel, $ctrl, 'label-first');
-            $this->pendingLabel = null;
-        } else {
-            $this->pendingControl = $ctrl;
-            $this->pairDirection = 'control-first';
-        }
     }
     public function open(string $action='', string $extra=''): static {
         $this->formCtrl = new FormControl();
@@ -199,7 +64,7 @@ class FormBuilder {
         $cfg = $this->stdConfig($name, $value, $type);
         $tag = (true === $typeToTag ? $type : 'input');
         $this->control->init($cfg, $tag, $themeKey, $extra); 
-        $this->checkPending($this->control); 
+        $this->htm .= $this->ctrlBinder->handleControl($this->control); 
         return $this;
     }
     public function hidden(string $name, $value='', string $extra=''): static {
@@ -258,7 +123,7 @@ class FormBuilder {
         if ( true === $multi ) 
             $cfg['multiple'] = 'multiple';
         $ctrl->init($cfg, 'select', 'select', $extra);
-        $this->checkPending($ctrl);
+        $this->htm .= $this->ctrlBinder->handleControl($ctrl);
         return $this;
     }
     public function select(string $name, array $options=[], array $selected=[], string $extra=''): static {
@@ -318,13 +183,7 @@ class FormBuilder {
         if ( $id !== '' ) 
             $cfg['for'] = $id;
         $label->init($cfg, 'label', 'label', $extra);
-        if ( $this->pendingControl ) {
-            $this->pair($label, $this->pendingControl, 'control-first');
-            $this->pendingControl = null;
-        } else {
-            $this->pendingLabel = $label;
-            $this->pairDirection = 'label-first';
-        }
+        $this->htm .= $this->ctrlBinder->handleLabel($label);
         return $this;
     }
     public function unwrap() {

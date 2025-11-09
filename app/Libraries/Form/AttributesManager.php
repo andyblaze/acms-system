@@ -1,5 +1,5 @@
 <?php
-namespace App\Libraries;
+namespace App\Libraries\Form;
 
 class AttributesManager {
     protected $attrStr = '';
