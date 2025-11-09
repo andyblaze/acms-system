@@ -12,5 +12,6 @@ class FormTheme extends BaseConfig {
         'radio'    => ['class' => 'form-check-input'],
         'select'   => ['class' => 'form-select'],
         'label'    => ['class' => 'form-label'],
+        'tickable_wrap' => ['class'=>'form-check']
     ];
 }

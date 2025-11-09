@@ -153,16 +153,15 @@ class FormBuilder {
         $label->setAttr('for', $id);
         $ctrl->setAttr('id', $id);
         
-        //dd($ctrl->getAttr('type'));
         if ( in_array($ctrl->getAttr('type'), ['checkbox', 'radio']) ) {
-            $open = '<div class="form-check">';
+            $cls = $cls = $this->theme['tickable_wrap']['class'];
+            $open = "<div class=\"{$cls}\">";
             $close = '</div>';
         }
         else
             $open = $close = '';
             
         $this->htm .= $open;
-        // Determine order
         if ( $direction === 'label-first' )
             $this->htm .= $label->render() . $ctrl->render();
         else
@@ -171,7 +170,6 @@ class FormBuilder {
     }
     protected function checkPending(Control $ctrl) {
         if ( $this->pendingLabel ) {
-            // Label came first -> label-first
             $this->pair($this->pendingLabel, $ctrl, 'label-first');
             $this->pendingLabel = null;
         } else {
@@ -201,11 +199,7 @@ class FormBuilder {
         $cfg = $this->stdConfig($name, $value, $type);
         $tag = (true === $typeToTag ? $type : 'input');
         $this->control->init($cfg, $tag, $themeKey, $extra); 
-
         $this->checkPending($this->control); 
-        //$this->pair($this->pendingLabel, $this->control, 'control-first');
-        
-        //$this->htm .= $this->control->render();
         return $this;
     }
     public function hidden(string $name, $value='', string $extra=''): static {
@@ -292,9 +286,7 @@ class FormBuilder {
     protected function tickable($name, $value, $checked, $extra, $type): static {
         $cfg = $this->stdConfig($name, $value, $type);
         $cfg['checked'] = $checked;
-        //$this->html('<div class="form-check">');
-                $this->addInput($name, $value, $extra, $type, $type);
-            //$this->html('</div>');
+        $this->addInput($name, $value, $extra, $type, $type);
         return $this;
     }
     private function inputGroup(string $type, $name, $options, $checked, $extra): static {
@@ -327,14 +319,12 @@ class FormBuilder {
             $cfg['for'] = $id;
         $label->init($cfg, 'label', 'label', $extra);
         if ( $this->pendingControl ) {
-            // Control came first -> control-first
             $this->pair($label, $this->pendingControl, 'control-first');
             $this->pendingControl = null;
         } else {
             $this->pendingLabel = $label;
             $this->pairDirection = 'label-first';
         }
-        //$this->htm .= $ctrl->render();
         return $this;
     }
     public function unwrap() {
@@ -346,7 +336,7 @@ class FormBuilder {
     }
     public function wrap(string $tag, string $extra='') {
         $this->unwrap();
-        $attrs = $extra === '' ? '' : ' ' . $extra; //$this->attrToString($extra, null, false);
+        $attrs = $extra === '' ? '' : ' ' . $extra; 
         $this->htm .= "<{$tag}{$attrs}>";
         $this->wrapTag = $tag;
         return $this;
