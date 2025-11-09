@@ -60,15 +60,24 @@ class FormBuilder {
             'type'=>$type
         ];
     }
-    protected function addInput($name, $value, $extra, string $type, string $themeKey='input', bool $typeToTag=false) {
+    protected function addFieldName($name) {
+        if ( $name === '' ) return; // handles un-named buttons for instance
+        $n = str_replace('[]', '', $name);
+        $this->fields[$n] = $n;
+    }
+    protected function addInput($name, $value, $extra, string $type, string $themeKey='input', bool $typeToTag=false) { 
+        $this->addFieldName($name);
         $cfg = $this->stdConfig($name, $value, $type);
         $tag = (true === $typeToTag ? $type : 'input');
         $this->control->init($cfg, $tag, $themeKey, $extra); 
-        $this->htm .= $this->ctrlBinder->handleControl($this->control); 
+        if ( $type === 'hidden' )
+            $this->htm .= $this->control->render();
+        else
+            $this->htm .= $this->ctrlBinder->handleControl($this->control); 
         return $this;
     }
     public function hidden(string $name, $value='', string $extra=''): static {
-        return $this->addInput($name, $value, $extra, 'hidden');
+        return $this->addInput($name, $value, $extra, 'hidden', 'hidden');
     }
     public function input(string $name, $value='', string $extra=''): static {
         return $this->addInput($name, $value, $extra, 'text');
@@ -113,7 +122,7 @@ class FormBuilder {
         return $this->addInput($name, $value, $extra, 'button', 'button', true);
     }
     protected function addSelect($name, $options, $selected, $extra, $multi): static {
-        $this->fields[] = $name;
+        $this->addFieldName($name);
         $ctrl = new SelectControl($this->themeName);
         $cfg = [
             'name'=>$name,
@@ -130,6 +139,7 @@ class FormBuilder {
         return $this->addSelect($name, $options, $selected, $extra, false);
     }
     public function multiselect(string $name='', array $options=[], array $selected=[], $extra=''): static {
+        $name = (substr($name, -2) === '[]') ? $name : $name . '[]';
         return $this->addSelect($name, $options, $selected, $extra, true);
     }
     public function fieldset($legend_text='', $extra=''): static {
@@ -149,6 +159,7 @@ class FormBuilder {
         return $this;
     }
     protected function tickable($name, $value, $checked, $extra, $type): static {
+        $this->addFieldName($name);
         $cfg = $this->stdConfig($name, $value, $type);
         $cfg['checked'] = $checked;
         $this->addInput($name, $value, $extra, $type, $type);
@@ -156,11 +167,13 @@ class FormBuilder {
     }
     private function inputGroup(string $type, $name, $options, $checked, $extra): static {
         $workingName = $name;
-        if ( $type === 'checkbox' && strpos($name, '[]') === false )
-            $workingName .= '[]';
+        $name = str_replace('[]', '', $name);
+        if ( $type === 'checkbox' )
+            $workingName = (substr($name, -2) === '[]') ? $workingName : $workingName . '[]';
             
         if ( $extra !== '' )
             $extra = ' ' . $extra;
+        
         $this->wrap('div');
         foreach ( $options as $opt => $text ) {
             $boxId = $name . $opt;
@@ -217,6 +230,7 @@ class FormBuilder {
         $this->htm = '';
         $this->fieldset_open = false;
         $this->form_opened = false;
+        $this->fields = [];
     }
     public function render(): string {
         return $this->htm;
