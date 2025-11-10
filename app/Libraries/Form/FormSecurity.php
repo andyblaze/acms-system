@@ -1,5 +1,12 @@
 <?php
 
+/* on submission usage: 
+use App\Libraries\Form\FormSecurity;
+$sec = new FormSecurity();
+if ( ! $sec->check($_POST['field_names'], $_POST['nonce'], $_POST['checksum']) ) {
+    throw new \RuntimeException('Form checksum mismatch.');
+}*/
+
 namespace App\Libraries\Form;
 
 class FormSecurity {
