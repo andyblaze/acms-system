@@ -71,7 +71,7 @@ class FormBuilder {
         $cfg = $this->stdConfig($name, $value, $type);
         $tag = (true === $typeToTag ? $type : 'input');
         $this->control->init($cfg, $tag, $themeKey, $extra); 
-        if ( in_array($type, ['hidden', 'submit', 'reset', 'button']) )
+        if ( $this->ctrlBinder->isUnpaired($type) )
             $this->htm .= $this->control->render();
         else
             $this->htm .= $this->ctrlBinder->handleControl($this->control); 

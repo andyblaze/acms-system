@@ -6,8 +6,12 @@ class ControlBinder {
     protected $pendingControl = null;
     protected string $pairDirection = ''; // 'label-first' or 'control-first'  
     protected $theme = [];
+    protected $unpaired = ['hidden', 'submit', 'reset', 'button'];
     public function __construct($theme) {
         $this->theme = $theme;
+    }
+    public function isUnpaired($type) {
+        return in_array($type, $this->unpaired);
     }
     protected function pair(Control $label, Control $ctrl, string $direction): string {
         // If only one exists, render it and bail.
