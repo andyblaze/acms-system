@@ -217,10 +217,17 @@ class FormBuilder {
         $this->htm .= $htm;
         return $this;
     }
+    protected function security(): static {
+        $fields = implode(',', $this->fields);
+        $nonce = randomStr();
+        $key = config('Form')->secretKey;   
+        $checksum = hash_hmac('sha256', $fields . '|' . $nonce, $key);     
+        $this->hidden('field_names', $fields)->hidden('nonce', $nonce)->hidden('checksum', $checksum);
+        return $this;
+    }
     public function close($extra=''): string {
         $this->fieldset_close();
-        $this->hidden('field_names', implode(',', $this->fields));
-        $this->hidden('nonce', randomStr());
+        $this->security();
         $this->htm .= $this->formCtrl->close();
         $output = $this->htm;        
         $this->clear();
