@@ -39,7 +39,7 @@ class Home extends BaseController {
         helper('inflector');
         $frm = new FormBuilder('bootstrap');
         $frm->open('/api/content/save')->fieldset()->
-        wrap('div', 'id="twirl" class="boob"')->label('foo')->input('foo', 'bar')->unwrap()->
+        /*wrap('div', 'id="twirl" class="boob"')->label('foo')->input('foo', 'bar')->unwrap()->
         checkbox('abc', 12)->label('Abc')->
         radio('xyz', 12)->label('Xyz')->
         label('Select content')->select('abc', ['a', 'b', 'c'], [], '')->
@@ -56,10 +56,10 @@ class Home extends BaseController {
         wrap('div')->label('Date')->date('date')->
         // manual unwrap
         wrap('div')->label('Range')->range('range', 3, 'min="0" max="6"')->unwrap()->
-        label('Html content')->textarea('html_content', 'poop')->
-        wrap('div')->submit('', 'Send')->
-        wrap('div')->reset('', 'Reset')->
-        wrap('div')->button('', 'Btn')->
+        label('Html content')->textarea('html_content', 'poop')->*/
+        wrap('div')->submit('', 'Send')->unwrap()->
+        wrap('div')->reset('', 'Reset')->unwrap()->
+        wrap('div')->button('', 'Btn')->unwrap()->
         close();
         echo $frm->render();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);

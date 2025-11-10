@@ -11,7 +11,7 @@ class ControlBinder {
     }
     protected function pair(Control $label, Control $ctrl, string $direction): string {
         // If only one exists, render it and bail.
-        if ( ! $label && $ctrl )
+        if ( ! $label && $ctrl ) 
             return $ctrl->render();
         
         if ( $label && ! $ctrl )

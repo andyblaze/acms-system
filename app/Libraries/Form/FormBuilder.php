@@ -71,7 +71,7 @@ class FormBuilder {
         $cfg = $this->stdConfig($name, $value, $type);
         $tag = (true === $typeToTag ? $type : 'input');
         $this->control->init($cfg, $tag, $themeKey, $extra); 
-        if ( $type === 'hidden' )
+        if ( in_array($type, ['hidden', 'submit', 'reset', 'button']) )
             $this->htm .= $this->control->render();
         else
             $this->htm .= $this->ctrlBinder->handleControl($this->control); 
@@ -209,7 +209,7 @@ class FormBuilder {
     }
     public function wrap(string $tag, string $extra='') {
         $this->unwrap();
-        $attrs = $extra === '' ? '' : ' ' . $extra; 
+        $attrs = $this->attrToString($extra); 
         $this->htm .= "<{$tag}{$attrs}>";
         $this->wrapTag = $tag;
         return $this;
@@ -218,17 +218,8 @@ class FormBuilder {
         $this->htm .= $htm;
         return $this;
     }
-    protected function security(): static {
-        $fields = implode(',', $this->fields);
-        $nonce = randomStr();
-        $key = env('formKey');
-        $checksum = hash_hmac('sha256', $fields . '|' . $nonce, $key);     
-        $this->hidden('field_names', $fields)->hidden('nonce', $nonce)->hidden('checksum', $checksum);
-        return $this;
-    }
     public function close(): static {
         $this->unwrap()->fieldset_close();
-        //$this->security();
         $sec = new FormSecurity();
         $data = $sec->secure($this->fields);
 

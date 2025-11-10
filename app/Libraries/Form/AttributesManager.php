@@ -89,12 +89,13 @@ class AttributesManager {
             $this->attrArray['class'] = $cls;
     }
     public function attsToStr() {
+        if ( empty($this->attrArray) ) return '';
         $str = '';
         foreach ( $this->attrArray as $k=>$v )
             $str .= empty($k) ? '' : "{$k}=\"{$v}\" ";
         $this->attrArray = [];
         $this->attrStr = '';
-        return trim($str);
+        return ' ' . trim($str);
     }
     public function addClass(string $cls) {
         $this->mergeClass($cls);

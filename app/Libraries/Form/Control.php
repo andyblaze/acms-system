@@ -44,12 +44,12 @@ class Control {
             $value = $this->attributes->get('value');
             $this->attributes->remove('value');
             $this->attributes->remove('type');
-            $tag =  "<{$this->tag} " . 
+            $tag =  "<{$this->tag}" . 
                     $this->attributes->toString() . 
                     ">{$value}</{$this->tag}>\n";
         }
         else {
-            $tag =  "<{$this->tag} " . 
+            $tag =  "<{$this->tag}" . 
                     $this->attributes->toString() .
                     " />\n";
         }
@@ -61,7 +61,7 @@ class LabelControl extends Control {
     public function render() {
         $value = $this->attributes->get('value');
         $this->attributes->remove('value');
-        return  "<{$this->tag} " . 
+        return  "<{$this->tag}" . 
                 $this->attributes->toString() .
                 ">{$value}</{$this->tag}>\n";
     }
@@ -82,14 +82,14 @@ class SelectControl extends Control {
         $options = $this->renderOptions($opts, $sel);
         $this->attributes->remove('options');
         $this->attributes->remove('selected');
-        return  "<{$this->tag} " . 
+        return  "<{$this->tag}" . 
                 $this->attributes->toString() .
                 ">{$options}</{$this->tag}>\n";
     }
 }
 class FormControl extends Control {
     public function open() {
-        return  "<{$this->tag} " .
+        return  "<{$this->tag}" .
                 $this->attributes->toString() .
                 ">";
     }
@@ -100,7 +100,7 @@ class FormControl extends Control {
 class FieldsetControl extends Control {
     public function open(string $legend_text) {
         $legend = ($legend_text === '' ? '' : "<legend>{$legend_text}</legend>");
-        return  "<{$this->tag} " .
+        return  "<{$this->tag}" .
                 $this->attributes->toString() .
                 ">{$legend}\n";
     }
