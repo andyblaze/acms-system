@@ -5,6 +5,7 @@ use App\Libraries\Form\Control;
 use App\Libraries\Form\AttributesManager;
 use App\Libraries\Form\ControlBinder;
 use Config\FormTheme;
+use App\Libraries\Form\FormSecurity;
 
 class FormBuilder {
     protected $fields = [];
@@ -220,18 +221,23 @@ class FormBuilder {
     protected function security(): static {
         $fields = implode(',', $this->fields);
         $nonce = randomStr();
-        $key = config('Form')->secretKey;   
+        $key = env('formKey');
         $checksum = hash_hmac('sha256', $fields . '|' . $nonce, $key);     
         $this->hidden('field_names', $fields)->hidden('nonce', $nonce)->hidden('checksum', $checksum);
         return $this;
     }
-    public function close($extra=''): string {
-        $this->fieldset_close();
-        $this->security();
-        $this->htm .= $this->formCtrl->close();
-        $output = $this->htm;        
-        $this->clear();
-        return $output;
+    public function close(): static {
+        $this->unwrap()->fieldset_close();
+        //$this->security();
+        $sec = new FormSecurity();
+        $data = $sec->secure($this->fields);
+
+        $this->hidden('field_names', $data['fields'])
+             ->hidden('nonce', $data['nonce'])
+             ->hidden('checksum', $data['checksum']);
+             
+        $this->htm .= $this->formCtrl->close();     
+        return $this;
     }
     public function clear(): void {
         $this->htm = '';
@@ -240,6 +246,8 @@ class FormBuilder {
         $this->fields = [];
     }
     public function render(): string {
-        return $this->htm;
+        $output = $this->htm;
+        $this->clear();
+        return $output;
     }
 }

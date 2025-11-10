@@ -59,8 +59,9 @@ class Home extends BaseController {
         label('Html content')->textarea('html_content', 'poop')->
         wrap('div')->submit('', 'Send')->
         wrap('div')->reset('', 'Reset')->
-        wrap('div')->button('', 'Btn');
-        echo $frm->close();
+        wrap('div')->button('', 'Btn')->
+        close();
+        echo $frm->render();
         return view('pages/' . $this->viewData['view_file'], $this->viewData);
     }
 }
