@@ -167,19 +167,19 @@ class FormBuilder {
         return $this;
     }
     private function inputGroup(string $type, $name, $options, $checked, $extra): static {
-        $name = str_replace('[]', '', $name);
-        $workingName = $name;
+        $baseName = str_replace('[]', '', $name);
+        //$workingName = $name;
         if ( $type === 'checkbox' )
-            $workingName = (substr($name, -2) === '[]') ? $workingName : $workingName . '[]';
+            $name = (substr($name, -2) === '[]') ? $name : $name . '[]';
             
         if ( $extra !== '' )
             $extra = ' ' . $extra;
         
         $this->wrap('div');
         foreach ( $options as $opt => $text ) {
-            $boxId = $name . $opt;
+            $boxId = $baseName . $opt;
             $isChecked = in_array($opt, $checked, true);
-            $this->{$type}($workingName, $opt, $isChecked, "id=\"{$boxId}\"")
+            $this->{$type}($name, $opt, $isChecked, "id=\"{$boxId}\"")
                  ->label($text, $boxId);
         }
         $this->unwrap();
