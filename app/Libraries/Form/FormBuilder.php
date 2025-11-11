@@ -168,7 +168,6 @@ class FormBuilder {
     }
     private function inputGroup(string $type, $name, $options, $checked, $extra): static {
         $baseName = trim($name, '[]');
-        //$workingName = $name;
         if ( $type === 'checkbox' )
             $name .= '[]';
             
