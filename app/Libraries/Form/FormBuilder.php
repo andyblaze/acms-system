@@ -167,10 +167,10 @@ class FormBuilder {
         return $this;
     }
     private function inputGroup(string $type, $name, $options, $checked, $extra): static {
-        $baseName = str_replace('[]', '', $name);
+        $baseName = trim($name, '[]');
         //$workingName = $name;
         if ( $type === 'checkbox' )
-            $name = (substr($name, -2) === '[]') ? $name : $name . '[]';
+            $name .= '[]';
             
         if ( $extra !== '' )
             $extra = ' ' . $extra;
