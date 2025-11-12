@@ -178,7 +178,7 @@ class FormBuilder {
         foreach ( $options as $opt => $text ) {
             $boxId = $baseName . $opt;
             $isChecked = in_array($opt, $checked, true);
-            $this->{$type}($name, $opt, $isChecked, "id=\"{$boxId}\"")
+            $this->{$type}($name, $opt, $isChecked, "id=\"{$boxId}\"{$extra}")
                  ->label($text, $boxId);
         }
         $this->unwrap();

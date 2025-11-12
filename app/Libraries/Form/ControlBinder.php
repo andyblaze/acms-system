@@ -13,6 +13,17 @@ class ControlBinder {
     public function isUnpaired($type) {
         return in_array($type, $this->unpaired);
     }
+    protected function isInline($ctrl, $cssClass) {
+        $classes = explode(' ', $ctrl->getAttr('class'));
+        $idx = array_search($cssClass, $classes);
+        if ( false === $idx )  
+            return false;
+        else {
+            unset($classes[$idx]);
+            $ctrl->setAttr('class', implode(' ', $classes));
+            return true;
+        }
+    }
     protected function pair(Control $label, Control $ctrl, string $direction): string {
         // If only one exists, render it and bail.
         if ( ! $label && $ctrl ) 
@@ -26,9 +37,10 @@ class ControlBinder {
         $label->setAttr('for', $id);
         $ctrl->setAttr('id', $id);
         
-        if ( in_array($ctrl->getAttr('type'), ['checkbox', 'radio']) ) {
-            $cls = $cls = $this->theme['tickable_wrap']['class'];
-            $open = "<div class=\"{$cls}\">";
+        if ( in_array($ctrl->getAttr('type'), ['checkbox', 'radio']) ) { 
+            $css =  $this->isInline($ctrl, 'inline') ? $this->theme['tickable_inline']['class'] . ' ' : '' .
+                    $this->theme['tickable_wrap']['class'];
+            $open = "<div class=\"{$css}\">";
             $close = '</div>';
         }
         else
