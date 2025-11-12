@@ -57,7 +57,7 @@ class Home extends BaseController {
         label('Password')->password('password')->
         label('Email')->email('email')->
         label('File')->upload('file')->*/
-        checkboxGroup('ghg[]', ['h', 'k', 'l'])->
+        checkboxGroup('ghg', ['h', 'k', 'l'])->
         radioGroup('vbv', ['w', 'e', 'r'])->
         /*// wrap will unwrap() before it wraps again
         wrap('div', 'class="abc"')->label('Color')->color('color')->
