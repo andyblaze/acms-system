@@ -29,6 +29,19 @@ class Control {
     public function getAttr($attr) {
         return $this->attributes->get($attr);
     }
+    public function hasClass($cls, $unsetOnDetect) {
+        $classes = explode(' ', $this->getAttr('class'));
+        $idx = array_search($cls, $classes);
+        if ( false === $idx )  
+            return false;
+        else {
+            if ( $unsetOnDetect ) {
+                unset($classes[$idx]);
+                $this->setAttr('class', implode(' ', $classes));
+            }
+            return true;
+        }
+    }
     public function setAttr($k, $v) {
         $this->attributes->set($k, $v);
     }
